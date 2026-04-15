@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
-import { ScrollView, TouchableOpacity, View } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { AppText, Button, Divider } from '@/components/atoms';
 import { SearchBar } from '@/components/molecules';
 import { Colors } from '@/constants/theme';
 import { productService } from '@/services/api';
 import { Product } from '@/types';
+import { Ionicons } from '@expo/vector-icons';
+import React, { useState } from 'react';
+import { ScrollView, TouchableOpacity, View } from 'react-native';
 import { styles } from './ProductSearchResults.styles';
 
 interface ProductSearchResultsProps {
@@ -41,7 +41,7 @@ export function ProductSearchResults({ onSelect, onCreateNew }: ProductSearchRes
         <View style={styles.list}>
           {results.length === 0 && query.length > 0 && !loading && (
             <View style={styles.emptyContainer}>
-              <AppText variant="body" color="secondary">No hay resultados para "{query}"</AppText>
+              <AppText variant="body" color="secondary">No hay resultados para &quot;{query}&quot;</AppText>
             </View>
           )}
           {results.map((product) => (
