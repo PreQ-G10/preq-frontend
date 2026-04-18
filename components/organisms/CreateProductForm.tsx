@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
-import { Image, View } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { AppText, Button, Input } from '@/components/atoms';
 import { Colors } from '@/constants/theme';
 import { productService } from '@/services/api';
 import { Product } from '@/types';
+import { Ionicons } from '@expo/vector-icons';
+import React, { useState } from 'react';
+import { Image, View } from 'react-native';
 import { styles } from './CreateProductForm.styles';
 
 interface CreateProductFormProps {
@@ -35,16 +35,16 @@ export function CreateProductForm({ photoUri, onCreated }: CreateProductFormProp
     if (!validate()) return;
     setLoading(true);
     try {
-      const product = await productService.create({
-        name,
-        brand,
-        quantity: Number(quantity),
-        quantityType,
-        barcode: barcode || undefined,
-      });
-      onCreated(product);
+        const product = await productService.create({
+            name,
+            brand,
+            quantity: Number(quantity),
+            quantityType,
+            barcode: barcode || undefined,
+        }, photoUri);
+        onCreated(product);
     } finally {
-      setLoading(false);
+        setLoading(false);
     }
   }
 

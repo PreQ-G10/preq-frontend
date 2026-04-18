@@ -1,5 +1,5 @@
-import { StyleSheet } from 'react-native';
 import { Colors, Radius, Spacing, Typography } from '@/constants/theme';
+import { StyleSheet } from 'react-native';
 
 export const styles = StyleSheet.create({
   container: {
@@ -24,5 +24,10 @@ export const styles = StyleSheet.create({
   },
   clearButton: {
     padding: Spacing.xs,
+  },
+  hasResults: {
+    borderBottomLeftRadius: 0,
+    borderBottomRightRadius: 0,
+    borderColor: Colors.primary,
   },
 });

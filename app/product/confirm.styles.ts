@@ -1,5 +1,5 @@
+import { Colors, Radius, Spacing } from '@/constants/theme';
 import { StyleSheet } from 'react-native';
-import { Colors, Spacing } from '@/constants/theme';
 
 export const styles = StyleSheet.create({
   container: {
@@ -21,5 +21,21 @@ export const styles = StyleSheet.create({
   },
   section: {
     gap: Spacing.md,
+  },
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'flex-end',
+  },
+  popup: {
+    backgroundColor: Colors.white,
+    borderTopLeftRadius: Radius.xl,
+    borderTopRightRadius: Radius.xl,
+    padding: Spacing.xl,
+    gap: Spacing.md,
+  },
+  popupTitle: {
+    textAlign: 'center',
+    marginBottom: Spacing.sm,
   },
 });

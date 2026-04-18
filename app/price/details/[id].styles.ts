@@ -1,5 +1,5 @@
+import { Colors, Radius, Spacing } from '@/constants/theme';
 import { StyleSheet } from 'react-native';
-import { Colors, Spacing, Radius } from '@/constants/theme';
 
 export const styles = StyleSheet.create({
   container: {
@@ -34,5 +34,10 @@ export const styles = StyleSheet.create({
   },
   scanAgainButton: {
     marginTop: Spacing.sm,
+  },
+  emptyContainer: {
+    alignItems: 'center',
+    gap: Spacing.md,
+    paddingVertical: Spacing.xxl,
   },
 });

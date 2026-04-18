@@ -1,3 +1,5 @@
+export type LocationType = 'SUPERMARKET' | 'STORE' | 'PHARMACY' | 'OTHER';
+
 export interface Product {
   id: number;
   name: string;
@@ -31,7 +33,7 @@ export interface Location {
   id: number;
   name: string;
   address: string;
-  type: 'SUPERMARKET' | 'STORE' | 'PHARMACY' | 'OTHER';
+  type: LocationType;
 }
 
 export interface LocationProductPrice {

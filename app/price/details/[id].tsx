@@ -1,13 +1,13 @@
-import React, { useEffect, useState } from 'react';
-import { SafeAreaView, ScrollView, TouchableOpacity, View } from 'react-native';
-import { router, useLocalSearchParams } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
 import { AppText, Button, Spinner } from '@/components/atoms';
 import { PriceSummaryPanel } from '@/components/organisms';
-import { Colors } from '@/constants/theme';
 import { Routes } from '@/constants/routes';
+import { Colors } from '@/constants/theme';
 import { priceService } from '@/services/api';
 import { PriceSummaryResponse } from '@/types';
+import { Ionicons } from '@expo/vector-icons';
+import { router, useLocalSearchParams } from 'expo-router';
+import React, { useEffect, useState } from 'react';
+import { SafeAreaView, ScrollView, TouchableOpacity, View } from 'react-native';
 import { styles } from './[id].styles';
 
 export default function PriceDetailsScreen() {
@@ -18,6 +18,7 @@ export default function PriceDetailsScreen() {
   useEffect(() => {
     priceService.getSummary(Number(id))
       .then(setSummary)
+      .catch(() => setSummary(null))
       .finally(() => setLoading(false));
   }, [id]);
 
@@ -33,11 +34,15 @@ export default function PriceDetailsScreen() {
       </View>
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        {summary ? (
+        {summary && summary.avgPrice > 0 ? (
           <PriceSummaryPanel summary={summary} />
         ) : (
-          <View>
-            <AppText variant="body" color="secondary">No hay precios disponibles todavía</AppText>
+          <View style={styles.emptyContainer}>
+            <Ionicons name="pricetag-outline" size={48} color={Colors.gray300} />
+            <AppText variant="h3" color="secondary">Sin precios todavía</AppText>
+            <AppText variant="body" color="muted" style={{ textAlign: 'center' }}>
+              Sé el primero en colaborar con el precio de este producto
+            </AppText>
           </View>
         )}
         <Button
