@@ -12,5 +12,6 @@ export const API = {
     createLocation: `${BASE_URL}/api/locations`,
     reportPrice: `${BASE_URL}/api/prices`,
     priceDetails: (productId: number) => `${BASE_URL}/api/prices/${productId}`,
+    uploadProductImage: (productId: number) => `${BASE_URL}/api/products/${productId}/image`,
   },
 };

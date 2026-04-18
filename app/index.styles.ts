@@ -1,5 +1,5 @@
+import { Colors, Radius, Spacing, Typography } from '@/constants/theme';
 import { StyleSheet } from 'react-native';
-import { Colors, Spacing, Radius, Typography } from '@/constants/theme';
 
 export const styles = StyleSheet.create({
   container: {
@@ -74,5 +74,37 @@ export const styles = StyleSheet.create({
   scanLabel: {
     fontSize: Typography.sizes.sm,
     color: Colors.textSecondary,
+  },
+  searchWrapper: {
+    position: 'relative',
+    zIndex: 10,
+  },
+  dropdown: {
+    position: 'absolute',
+    top: '100%',
+    left: 0,
+    right: 0,
+    backgroundColor: Colors.white,
+    borderLeftWidth: 1.5,
+    borderRightWidth: 1.5,
+    borderBottomWidth: 1.5,
+    borderColor: Colors.primary,
+    borderBottomLeftRadius: Radius.md,
+    borderBottomRightRadius: Radius.md,
+    elevation: 4,
+    zIndex: 10,
+    overflow: 'hidden',
+  },
+  dropdownItem: {
+    paddingVertical: Spacing.sm,
+    paddingHorizontal: Spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.gray100,
+    gap: 2,
+  },
+  viewMore: {
+    paddingVertical: Spacing.sm,
+    paddingHorizontal: Spacing.md,
+    alignItems: 'center',
   },
 });

@@ -57,13 +57,24 @@ export const productService = {
     return handleResponse(res);
   },
 
-  async create(request: CreateProductRequest): Promise<Product> {
-    const res = await fetch(API.endpoints.createProduct, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(request),
+  async create(request: CreateProductRequest, photoUri?: string): Promise<Product> {
+    const res = await fetchWithTimeout(API.endpoints.createProduct, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...DEFAULT_HEADERS },
+        body: JSON.stringify(request),
     });
-    return handleResponse(res);
+    const product = await handleResponse<Product>(res);
+
+    if (photoUri) {
+        const form = new FormData();
+        form.append('file', { uri: photoUri, type: 'image/jpeg', name: 'photo.jpg' } as any);
+        await fetchWithTimeout(API.endpoints.uploadProductImage(product.id), {
+            method: 'POST',
+            body: form,
+        }, 60000);
+    }
+
+    return product;
   },
 };
 

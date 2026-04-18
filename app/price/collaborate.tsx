@@ -1,11 +1,11 @@
-import React from 'react';
-import { SafeAreaView, ScrollView, TouchableOpacity, View } from 'react-native';
-import { router, useLocalSearchParams } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
 import { AppText } from '@/components/atoms';
 import { PriceCollaborationForm } from '@/components/organisms';
-import { Colors } from '@/constants/theme';
 import { Routes } from '@/constants/routes';
+import { Colors } from '@/constants/theme';
+import { Ionicons } from '@expo/vector-icons';
+import { router, useLocalSearchParams } from 'expo-router';
+import React from 'react';
+import { SafeAreaView, ScrollView, TouchableOpacity, View } from 'react-native';
 import { styles } from './collaborate.styles';
 
 export default function PriceCollaborateScreen() {

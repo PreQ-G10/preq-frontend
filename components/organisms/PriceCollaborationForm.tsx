@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
-import { View } from 'react-native';
 import { AppText, Button, Divider } from '@/components/atoms';
 import { LocationItem, PriceInput } from '@/components/molecules';
 import { locationService, priceService } from '@/services/api';
 import { Location } from '@/types';
-import { styles } from './PriceCollaborationForm.styles';
+import React, { useState } from 'react';
+import { Modal, View } from 'react-native';
 import { SearchBar } from '../molecules/SearchBar';
+import { CreateLocationForm } from './CreateLocationForm';
+import { styles } from './PriceCollaborationForm.styles';
 
 interface PriceCollaborationFormProps {
   productId: number;
@@ -20,6 +21,7 @@ export function PriceCollaborationForm({ productId, onDone, onSkip }: PriceColla
   const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
   const [loading, setLoading] = useState(false);
   const [priceError, setPriceError] = useState('');
+  const [showCreateLocation, setShowCreateLocation] = useState(false);
 
   async function handleLocationSearch() {
     if (!locationQuery.trim()) return;
@@ -75,7 +77,7 @@ export function PriceCollaborationForm({ productId, onDone, onSkip }: PriceColla
       <Divider />
       <View style={styles.createLocationRow}>
         <AppText variant="bodySmall" color="secondary">¿No encontrás el lugar?</AppText>
-        <Button label="Agregar lugar" variant="ghost" size="sm" onPress={() => {}} />
+        <Button label="Agregar lugar" variant="ghost" size="sm" onPress={() => setShowCreateLocation(true)} />
       </View>
       <Button
         label="Enviar precio"
@@ -86,6 +88,16 @@ export function PriceCollaborationForm({ productId, onDone, onSkip }: PriceColla
         style={styles.submitButton}
       />
       <Button label="Saltar por ahora" variant="ghost" onPress={onSkip} fullWidth />
+      <Modal visible={showCreateLocation} animationType="slide" presentationStyle="pageSheet">
+        <CreateLocationForm
+          onCreated={(location) => {
+            setLocations(prev => [...prev, location]);
+            setSelectedLocation(location);
+            setShowCreateLocation(false);
+          }}
+          onCancel={() => setShowCreateLocation(false)}
+        />
+      </Modal>
     </View>
   );
 }
