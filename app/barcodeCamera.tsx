@@ -3,27 +3,48 @@ import { Routes } from '@/constants/routes';
 import { Colors } from '@/constants/theme';
 import { productService } from '@/services/api';
 import { Ionicons } from '@expo/vector-icons';
-import * as ImageManipulator from 'expo-image-manipulator';
 import { router } from 'expo-router';
-import React, { useRef, useState } from 'react';
+import React, { useState } from 'react';
 import { SafeAreaView, Text, TouchableOpacity, View } from 'react-native';
-import { Camera, useCameraDevice, useCameraPermission } from 'react-native-vision-camera';
+import { Camera, useCameraDevice, useCameraPermission, useCodeScanner } from 'react-native-vision-camera';
 import { styles } from './camera.styles';
 
-export default function CameraScreen() {
+export default function BarcodeCameraScreen() {
   const { hasPermission, requestPermission } = useCameraPermission();
   const device = useCameraDevice('back');
-  const cameraRef = useRef<Camera>(null);
+  const [hasDetected, setHasDetected] = useState(false);
   const [detecting, setDetecting] = useState(false);
 
-  async function compressImage(uri: string): Promise<string> {
-    const result = await ImageManipulator.manipulateAsync(
-      uri,
-      [{ resize: { width: 800 } }],
-      { compress: 0.7, format: ImageManipulator.SaveFormat.JPEG }
-    );
-    return result.uri;
-  }
+  const codeScanner = useCodeScanner({
+    codeTypes: ['ean-13'],
+    onCodeScanned: (codes) => {
+      if (codes.length > 0 && !hasDetected) {
+        const detectedCode = codes[0].value;
+        if (detectedCode) {
+          handleBarcodeDetected(detectedCode);
+        }
+      }
+    },
+  });
+
+  const handleBarcodeDetected = async (code: string) => {
+    setHasDetected(true);
+    setDetecting(true);
+    try {
+      const result = await productService.detectByBarcode(code);
+      router.replace({
+        pathname: Routes.productConfirm,
+        params: { results: JSON.stringify([result]), source: 'barcode' },
+      });
+    } catch (error) {
+      router.replace({
+        pathname: Routes.productConfirm
+      });
+      console.error('Barcode detection failed:', error);
+      setDetecting(false);
+      setHasDetected(false);
+    }
+  };
 
   if (!hasPermission) {
     return (
@@ -33,7 +54,7 @@ export default function CameraScreen() {
         </View>
         <AppText variant="h3">Permiso de cámara</AppText>
         <AppText variant="body" color="secondary" style={styles.permissionText}>
-          Necesitamos acceso a tu cámara para escanear productos
+          Necesitamos acceso a tu cámara para escanear códigos de barras
         </AppText>
         <Button label="Dar permiso" onPress={requestPermission} fullWidth />
         <Button label="Volver" variant="ghost" onPress={() => router.back()} fullWidth />
@@ -45,35 +66,17 @@ export default function CameraScreen() {
     return <Spinner fullScreen message="Iniciando cámara..." />;
   }
 
-  async function handleCapture() {
-    if (!cameraRef.current) return;
-    setDetecting(true);
-    try {
-      const photo = await cameraRef.current.takePhoto();
-      const uri = photo.path.startsWith('file://') ? photo.path : `file://${photo.path}`;
-      const compressed = await compressImage(uri);
-      const results = await productService.detectByImage(compressed);
-      console.log('Photo taken:', uri);
-      console.log('Detection results:', results);
-      router.push({
-        pathname: Routes.productConfirm,
-        params: { photoUri: uri, results: JSON.stringify(results), source: 'image' },
-      });
-    } catch (error) {
-      console.error('Detection failed:', error);
-      setDetecting(false);
-    }
+  if (detecting) {
+    return <Spinner fullScreen message="Identificando producto..." />;
   }
-  
 
   return (
     <View style={styles.container}>
       <Camera
-        ref={cameraRef}
         style={styles.camera}
         device={device}
         isActive={true}
-        photo={true}
+        codeScanner={codeScanner}
       />
 
         <View style={styles.overlay}>
@@ -82,20 +85,16 @@ export default function CameraScreen() {
             <Ionicons name="arrow-back" size={22} color={Colors.white} />
           </TouchableOpacity>
           <View style={styles.autoLabel}>
-            <Text style={styles.autoLabelText}>Modo manual</Text>
+            <Text style={styles.autoLabelText}>Escanear Código de Barras</Text>
           </View>
         </View>
 
         <View style={styles.frameContainer}>
           <View style={styles.frame} />
-          <Text style={styles.frameHint}>Centrá el producto en el recuadro</Text>
+          <Text style={styles.frameHint}>Centrá el código de barras en el recuadro</Text>
         </View>
 
-        <View style={styles.bottomBar}>
-          <TouchableOpacity style={styles.captureButton} onPress={handleCapture} activeOpacity={0.85}>
-            <View style={styles.captureInner} />
-          </TouchableOpacity>
-        </View>
+        <View style={styles.bottomBar} />
       </View>
     </View>
   );
