@@ -13,5 +13,6 @@ export const API = {
     reportPrice: `${BASE_URL}/api/prices`,
     priceDetails: (productId: number) => `${BASE_URL}/api/prices/${productId}`,
     uploadProductImage: (productId: number) => `${BASE_URL}/api/products/${productId}/image`,
+    detectNearbyLocation: `${BASE_URL}/api/locations/nearby`,
   },
 };
