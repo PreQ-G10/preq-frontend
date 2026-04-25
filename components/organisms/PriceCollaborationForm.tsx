@@ -1,9 +1,11 @@
 import { AppText, Button, Divider } from '@/components/atoms';
 import { LocationItem, PriceInput } from '@/components/molecules';
 import { locationService, priceService } from '@/services/api';
-import { Location } from '@/types';
+import { getDetectedLocation } from '@/services/maps';
+import { Location, LocationDetectionResponse } from '@/types';
+import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
-import { Modal, View } from 'react-native';
+import { Modal, TouchableOpacity, View } from 'react-native';
 import { SearchBar } from '../molecules/SearchBar';
 import { CreateLocationForm } from './CreateLocationForm';
 import { styles } from './PriceCollaborationForm.styles';
@@ -15,18 +17,27 @@ interface PriceCollaborationFormProps {
 }
 
 export function PriceCollaborationForm({ productId, onDone, onSkip }: PriceCollaborationFormProps) {
+  const detected: LocationDetectionResponse | null = getDetectedLocation();
+
   const [price, setPrice] = useState('');
-  const [locationQuery, setLocationQuery] = useState('');
-  const [locations, setLocations] = useState<Location[]>([]);
-  const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
-  const [loading, setLoading] = useState(false);
   const [priceError, setPriceError] = useState('');
-  const [showCreateLocation, setShowCreateLocation] = useState(false);
+  const [selectedLocation, setSelectedLocation] = useState<Location | null>(
+    detected?.location ?? null
+  );
+
+  // Manual search
+  const [locationQuery, setLocationQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<Location[]>([]);
+
+  // Create location modal
+  const [showCreate, setShowCreate] = useState(false);
+
+  const [submitting, setSubmitting] = useState(false);
 
   async function handleLocationSearch() {
     if (!locationQuery.trim()) return;
     const data = await locationService.search(locationQuery);
-    setLocations(data);
+    setSearchResults(data);
   }
 
   async function handleSubmit() {
@@ -34,68 +45,90 @@ export function PriceCollaborationForm({ productId, onDone, onSkip }: PriceColla
       setPriceError('Ingresá un precio válido');
       return;
     }
-    if (!selectedLocation) {
-      return;
-    }
+    if (!selectedLocation) return;
     setPriceError('');
-    setLoading(true);
+    setSubmitting(true);
     try {
       await priceService.report(productId, selectedLocation.id, Number(price));
       onDone();
     } finally {
-      setLoading(false);
+      setSubmitting(false);
     }
   }
 
   return (
     <View style={styles.container}>
       <PriceInput value={price} onChangeText={setPrice} error={priceError} />
+
       <View>
         <AppText variant="label" style={styles.sectionTitle}>¿Dónde lo viste?</AppText>
-        <SearchBar
-          value={locationQuery}
-          onChangeText={setLocationQuery}
-          onSubmit={handleLocationSearch}
-          placeholder="Buscar local o supermercado..."
-        />
-      </View>
-      <View style={styles.locationList}>
-        {locations.length === 0 && locationQuery.length > 0 && (
-          <AppText variant="bodySmall" color="muted" style={styles.noLocations}>
-            No hay resultados
-          </AppText>
+
+        {/* Selected location */}
+        {selectedLocation ? (
+          <View style={styles.selectedChip}>
+            <Ionicons name="checkmark-circle" size={16} style={styles.successColor} />
+            <View style={styles.selectedInfo}>
+              <AppText variant="body">{selectedLocation.name}</AppText>
+              <AppText variant="bodySmall" color="secondary">{selectedLocation.address}</AppText>
+            </View>
+            <TouchableOpacity
+              onPress={() => setSelectedLocation(null)}
+              hitSlop={{ top: 8, right: 8, bottom: 8, left: 8 }}
+            >
+              <Ionicons name="close-circle-outline" size={18} style={styles.grayColor} />
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <>
+            <SearchBar
+              value={locationQuery}
+              onChangeText={setLocationQuery}
+              onSubmit={handleLocationSearch}
+              placeholder="Buscar local o supermercado..."
+            />
+            <View style={styles.locationList}>
+              {searchResults.length === 0 && locationQuery.length > 0 && (
+                <AppText variant="bodySmall" color="muted" style={styles.noLocations}>
+                  No hay resultados
+                </AppText>
+              )}
+              {searchResults.map((loc) => (
+                <LocationItem
+                  key={loc.id}
+                  location={loc}
+                  selected={false}
+                  onPress={() => setSelectedLocation(loc)}
+                />
+              ))}
+            </View>
+          </>
         )}
-        {locations.map((loc) => (
-          <LocationItem
-            key={loc.id}
-            location={loc}
-            selected={selectedLocation?.id === loc.id}
-            onPress={() => setSelectedLocation(loc)}
-          />
-        ))}
       </View>
+
       <Divider />
+
       <View style={styles.createLocationRow}>
         <AppText variant="bodySmall" color="secondary">¿No encontrás el lugar?</AppText>
-        <Button label="Agregar lugar" variant="ghost" size="sm" onPress={() => setShowCreateLocation(true)} />
+        <Button label="Agregar lugar" variant="ghost" size="sm" onPress={() => setShowCreate(true)} />
       </View>
+
       <Button
         label="Enviar precio"
         onPress={handleSubmit}
-        loading={loading}
+        loading={submitting}
         fullWidth
         disabled={!selectedLocation || !price}
         style={styles.submitButton}
       />
       <Button label="Saltar por ahora" variant="ghost" onPress={onSkip} fullWidth />
-      <Modal visible={showCreateLocation} animationType="slide" presentationStyle="pageSheet">
+
+      <Modal visible={showCreate} animationType="slide" presentationStyle="pageSheet">
         <CreateLocationForm
           onCreated={(location) => {
-            setLocations(prev => [...prev, location]);
             setSelectedLocation(location);
-            setShowCreateLocation(false);
+            setShowCreate(false);
           }}
-          onCancel={() => setShowCreateLocation(false)}
+          onCancel={() => setShowCreate(false)}
         />
       </Modal>
     </View>

@@ -2,6 +2,7 @@ import { AppText } from '@/components/atoms';
 import { PriceCollaborationForm } from '@/components/organisms';
 import { Routes } from '@/constants/routes';
 import { Colors } from '@/constants/theme';
+import { setDetectedLocation } from '@/services/maps';
 import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import React from 'react';
@@ -12,10 +13,12 @@ export default function PriceCollaborateScreen() {
   const { productId } = useLocalSearchParams<{ productId: string }>();
 
   function handleDone() {
+    setDetectedLocation(null);
     router.push(Routes.priceDetails(Number(productId)));
   }
 
   function handleSkip() {
+    setDetectedLocation(null);
     router.push(Routes.priceDetails(Number(productId)));
   }
 

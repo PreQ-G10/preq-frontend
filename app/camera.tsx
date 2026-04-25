@@ -1,9 +1,11 @@
 import { AppText, Button, Spinner } from '@/components/atoms';
 import { Routes } from '@/constants/routes';
 import { Colors } from '@/constants/theme';
-import { productService } from '@/services/api';
+import { locationService, productService } from '@/services/api';
+import { setDetectedLocation } from '@/services/maps';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImageManipulator from 'expo-image-manipulator';
+import * as Location from 'expo-location';
 import { router } from 'expo-router';
 import React, { useRef, useState } from 'react';
 import { SafeAreaView, Text, TouchableOpacity, View } from 'react-native';
@@ -52,9 +54,21 @@ export default function CameraScreen() {
       const photo = await cameraRef.current.takePhoto();
       const uri = photo.path.startsWith('file://') ? photo.path : `file://${photo.path}`;
       const compressed = await compressImage(uri);
-      const results = await productService.detectByImage(compressed);
-      console.log('Photo taken:', uri);
-      console.log('Detection results:', results);
+
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      const position = status === 'granted'
+        ? await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced })
+        : null;
+
+      const [results, locationResult] = await Promise.all([
+        productService.detectByImage(compressed),
+        position
+          ? locationService.detectNearby(uri, position.coords.latitude, position.coords.longitude)
+          : Promise.resolve(null),
+      ]);
+
+      setDetectedLocation(locationResult);
+
       router.push({
         pathname: Routes.productConfirm,
         params: { photoUri: uri, results: JSON.stringify(results), source: 'image' },
@@ -65,6 +79,7 @@ export default function CameraScreen() {
     }
   }
   
+
 
   return (
     <View style={styles.container}>

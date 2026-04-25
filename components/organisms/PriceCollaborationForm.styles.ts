@@ -1,4 +1,4 @@
-import { Spacing } from '@/constants/theme';
+import { Colors, Radius, Spacing } from '@/constants/theme';
 import { StyleSheet } from 'react-native';
 
 export const styles = StyleSheet.create({
@@ -24,4 +24,17 @@ export const styles = StyleSheet.create({
   submitButton: {
     marginTop: Spacing.sm,
   },
+  selectedChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    padding: 10,
+    backgroundColor: Colors.surface,
+    borderRadius: Radius.md,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  selectedInfo: { flex: 1 },
+  successColor: { color: Colors.success },
+  grayColor: { color: Colors.gray400 },
 });
