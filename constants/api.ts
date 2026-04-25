@@ -1,10 +1,10 @@
-const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:8080';
+const BASE_URL = 'https://squiggly-decode-contort.ngrok-free.dev';
 
 export const API = {
   baseUrl: BASE_URL,
   endpoints: {
     detectImage: `${BASE_URL}/api/detection/image`,
-    detectBarcode: (barcode: string) => `${BASE_URL}/api/detection/barcode/${barcode}`,
+    detectBarcode: (barcode: string) => `${BASE_URL}/api/products/barcode/${barcode}`,
     confirmImage: (productId: number) => `${BASE_URL}/api/products/${productId}/confirm-image`,
     searchProducts: `${BASE_URL}/api/products/search`,
     createProduct: `${BASE_URL}/api/products`,
