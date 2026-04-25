@@ -109,7 +109,7 @@ export default function HomeScreen() {
       </Pressable>
 
       <View style={styles.footer}>
-        <TouchableOpacity style={styles.scanButton} onPress={() => router.push(Routes.cameraTypeSelect)} activeOpacity={0.85}>
+        <TouchableOpacity style={styles.scanButton} onPress={() => router.push(Routes.camera)} activeOpacity={0.85}>
           <Ionicons name="scan" size={32} color={Colors.white} />
         </TouchableOpacity>
         <Text style={styles.scanLabel}>Escanear producto</Text>
