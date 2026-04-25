@@ -47,10 +47,6 @@ export default function CameraScreen() {
     return <Spinner fullScreen message="Iniciando cámara..." />;
   }
 
-  if (detecting) {
-    return <Spinner fullScreen message="Analizando producto..." />;
-  }
-
   async function handleCapture() {
     if (!cameraRef.current) return;
     setDetecting(true);
@@ -75,13 +71,14 @@ export default function CameraScreen() {
 
       router.push({
         pathname: Routes.productConfirm,
-        params: { photoUri: uri, results: JSON.stringify(results) },
+        params: { photoUri: uri, results: JSON.stringify(results), source: 'image' },
       });
     } catch (error) {
       console.error('Detection failed:', error);
       setDetecting(false);
     }
   }
+  
 
 
   return (
@@ -93,7 +90,8 @@ export default function CameraScreen() {
         isActive={true}
         photo={true}
       />
-      <View style={styles.overlay}>
+
+        <View style={styles.overlay}>
         <View style={styles.topBar}>
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
             <Ionicons name="arrow-back" size={22} color={Colors.white} />

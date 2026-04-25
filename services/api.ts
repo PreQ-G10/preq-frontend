@@ -43,6 +43,11 @@ export const productService = {
     return handleResponse(res);
   },
 
+  async detectByBarcode(barcode: string): Promise<ProductDetectionResponse[]> {
+    const res = await fetchWithTimeout(API.endpoints.detectBarcode(barcode), { method: 'GET' });
+    return handleResponse(res);
+  },
+
   async confirmImage(productId: number, imageUri: string, similarity: number): Promise<Product> {
     const form = new FormData();
     form.append('file', { uri: imageUri, type: 'image/jpeg', name: 'photo.jpg' } as any);
