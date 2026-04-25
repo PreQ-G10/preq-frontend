@@ -16,6 +16,7 @@ export default function CameraScreen() {
   const { hasPermission, requestPermission } = useCameraPermission();
   const device = useCameraDevice('back');
   const cameraRef = useRef<Camera>(null);
+  const detectingRef = useRef(false);
   const [detecting, setDetecting] = useState(false);
 
   async function compressImage(uri: string): Promise<string> {
@@ -25,6 +26,37 @@ export default function CameraScreen() {
       { compress: 0.7, format: ImageManipulator.SaveFormat.JPEG }
     );
     return result.uri;
+  }
+
+  async function handleCapture() {
+    if (!cameraRef.current || detectingRef.current) return;
+    detectingRef.current = true;
+    setDetecting(true);
+    try {
+      const photo = await cameraRef.current.takePhoto();
+      const uri = photo.path.startsWith('file://') ? photo.path : `file://${photo.path}`;
+      const compressed = await compressImage(uri);
+
+      const [results, locationResult] = await Promise.all([
+        productService.detectByImage(compressed),
+        Location.requestForegroundPermissionsAsync().then(({ status }) =>
+          status === 'granted'
+            ? Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced })
+                .then(pos => locationService.detectNearby(uri, pos.coords.latitude, pos.coords.longitude))
+            : null
+        ),
+      ]);
+
+      setDetectedLocation(locationResult);
+      router.push({
+        pathname: Routes.productConfirm,
+        params: { photoUri: uri, results: JSON.stringify(results), source: 'image' },
+      });
+    } catch (error) {
+      console.error('Detection failed:', error);
+      detectingRef.current = false;
+      setDetecting(false);
+    }
   }
 
   if (!hasPermission) {
@@ -43,43 +75,8 @@ export default function CameraScreen() {
     );
   }
 
-  if (!device) {
-    return <Spinner fullScreen message="Iniciando cámara..." />;
-  }
-
-  async function handleCapture() {
-    if (!cameraRef.current) return;
-    setDetecting(true);
-    try {
-      const photo = await cameraRef.current.takePhoto();
-      const uri = photo.path.startsWith('file://') ? photo.path : `file://${photo.path}`;
-      const compressed = await compressImage(uri);
-
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      const position = status === 'granted'
-        ? await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced })
-        : null;
-
-      const [results, locationResult] = await Promise.all([
-        productService.detectByImage(compressed),
-        position
-          ? locationService.detectNearby(uri, position.coords.latitude, position.coords.longitude)
-          : Promise.resolve(null),
-      ]);
-
-      setDetectedLocation(locationResult);
-
-      router.push({
-        pathname: Routes.productConfirm,
-        params: { photoUri: uri, results: JSON.stringify(results), source: 'image' },
-      });
-    } catch (error) {
-      console.error('Detection failed:', error);
-      setDetecting(false);
-    }
-  }
-  
-
+  if (!device) return <Spinner fullScreen message="Iniciando cámara..." />;
+  if (detecting) return <Spinner fullScreen message="Analizando producto..." />;
 
   return (
     <View style={styles.container}>
@@ -90,8 +87,7 @@ export default function CameraScreen() {
         isActive={true}
         photo={true}
       />
-
-        <View style={styles.overlay}>
+      <View style={styles.overlay}>
         <View style={styles.topBar}>
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
             <Ionicons name="arrow-back" size={22} color={Colors.white} />
