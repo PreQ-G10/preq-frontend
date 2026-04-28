@@ -34,6 +34,8 @@ export interface Location {
   name: string;
   address: string;
   type: LocationType;
+  latitude?: number;
+  longitude?: number;
 }
 
 export interface LocationProductPrice {
@@ -57,4 +59,16 @@ export interface TopLocationResponse {
   address: string;
   avgPrice: number;
   reportCount: number;
+}
+
+export interface GeolocationDetectionResponse {
+  latitude: number;
+  longitude: number;
+  mapsUrl: string;
+}
+
+export interface LocationDetectionResponse {
+  location: Location;
+  geolocation: GeolocationDetectionResponse;
+  distanceMeters: number;
 }

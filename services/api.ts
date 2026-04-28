@@ -2,6 +2,7 @@ import { API } from '@/constants/api';
 import {
   CreateProductRequest,
   Location,
+  LocationDetectionResponse,
   PriceSummaryResponse,
   Product,
   ProductDetectionResponse,
@@ -39,6 +40,11 @@ export const productService = {
     const form = new FormData();
     form.append('file', { uri: imageUri, type: 'image/jpeg', name: 'photo.jpg' } as any);
     const res = await fetchWithTimeout(API.endpoints.detectImage, { method: 'POST', body: form });
+    return handleResponse(res);
+  },
+
+  async detectByBarcode(barcode: string): Promise<ProductDetectionResponse[]> {
+    const res = await fetchWithTimeout(API.endpoints.detectBarcode(barcode), { method: 'GET' });
     return handleResponse(res);
   },
 
@@ -84,11 +90,28 @@ export const locationService = {
     return handleResponse(res);
   },
 
-  async create(name: string, address: string, type: Location['type']): Promise<Location> {
+  async detectNearby(imageUri: string, latitude: number, longitude: number): Promise<LocationDetectionResponse | null> {
+    const form = new FormData();
+    form.append('image', { uri: imageUri, type: 'image/jpeg', name: 'photo.jpg' } as any);
+    const res = await fetchWithTimeout(
+      `${API.endpoints.detectNearbyLocation}?latitude=${latitude}&longitude=${longitude}`,
+      { method: 'POST', body: form }
+    );
+    if (res.status === 404) return null;
+    return handleResponse(res);
+  },
+
+  async create(
+    name: string,
+    address: string,
+    type: Location['type'],
+    latitude: number,
+    longitude: number,
+  ): Promise<Location> {
     const res = await fetch(API.endpoints.createLocation, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, address, type }),
+      body: JSON.stringify({ name, address, type, latitude, longitude }),
     });
     return handleResponse(res);
   },

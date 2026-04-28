@@ -1,5 +1,5 @@
-import { StyleSheet } from 'react-native';
 import { Colors, Radius, Spacing, Typography } from '@/constants/theme';
+import { StyleSheet } from 'react-native';
 
 export const styles = StyleSheet.create({
   container: {
@@ -19,8 +19,22 @@ export const styles = StyleSheet.create({
     borderColor: Colors.border,
     gap: Spacing.xs,
   },
+  weightedCard: {
+    padding: Spacing.md,
+    borderRadius: Radius.md,
+    backgroundColor: '#fff0f5',
+    borderWidth: 1,
+    borderColor: '#ffd6e5',
+    gap: Spacing.xs,
+  },
+  weightedValue: {
+    fontSize: Typography.sizes.xxl,
+    fontWeight: Typography.weights.black,
+    color: Colors.primary,
+    lineHeight: Typography.sizes.xxl * 1.3,
+  },
   statValue: {
-    fontSize: Typography.sizes.xl,
+    fontSize: Typography.sizes.md,
     fontWeight: Typography.weights.bold,
     color: Colors.text,
   },
@@ -28,21 +42,6 @@ export const styles = StyleSheet.create({
     fontSize: Typography.sizes.xs,
     color: Colors.textMuted,
     textAlign: 'center',
-  },
-  weightedCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: Spacing.md,
-    borderRadius: Radius.md,
-    backgroundColor: '#fff0f5',
-    borderWidth: 1,
-    borderColor: '#ffd6e5',
-  },
-  weightedValue: {
-    fontSize: Typography.sizes.xxl,
-    fontWeight: Typography.weights.black,
-    color: Colors.primary,
   },
   locationRow: {
     flexDirection: 'row',

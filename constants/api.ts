@@ -4,7 +4,7 @@ export const API = {
   baseUrl: BASE_URL,
   endpoints: {
     detectImage: `${BASE_URL}/api/detection/image`,
-    detectBarcode: (barcode: string) => `${BASE_URL}/api/detection/barcode/${barcode}`,
+    detectBarcode: (barcode: string) => `${BASE_URL}/api/products/barcode/${barcode}`,
     confirmImage: (productId: number) => `${BASE_URL}/api/products/${productId}/confirm-image`,
     searchProducts: `${BASE_URL}/api/products/search`,
     createProduct: `${BASE_URL}/api/products`,
@@ -13,5 +13,6 @@ export const API = {
     reportPrice: `${BASE_URL}/api/prices`,
     priceDetails: (productId: number) => `${BASE_URL}/api/prices/${productId}`,
     uploadProductImage: (productId: number) => `${BASE_URL}/api/products/${productId}/image`,
+    detectNearbyLocation: `${BASE_URL}/api/locations/nearby`,
   },
 };

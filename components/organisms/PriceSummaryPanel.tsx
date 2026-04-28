@@ -1,7 +1,7 @@
-import React from 'react';
-import { View } from 'react-native';
 import { AppText } from '@/components/atoms';
 import { PriceSummaryResponse } from '@/types';
+import React from 'react';
+import { View } from 'react-native';
 import { styles } from './PriceSummaryPanel.styles';
 
 interface PriceSummaryPanelProps {
@@ -9,17 +9,15 @@ interface PriceSummaryPanelProps {
 }
 
 function formatPrice(value: number) {
-  return `$${value.toFixed(2)}`;
+  return value.toLocaleString('es-AR', { style: 'currency', currency: 'ARS' });
 }
 
 export function PriceSummaryPanel({ summary }: PriceSummaryPanelProps) {
   return (
     <View style={styles.container}>
       <View style={styles.weightedCard}>
-        <View>
-          <AppText variant="label" color="primary">Precio estimado actual</AppText>
-          <AppText variant="caption" color="secondary">Ajustado por inflación reciente</AppText>
-        </View>
+        <AppText variant="label" color="primary">Precio estimado actual</AppText>
+        <AppText variant="caption" color="secondary">Ajustado por inflación reciente</AppText>
         <AppText style={styles.weightedValue}>{formatPrice(summary.weightedPrice)}</AppText>
       </View>
 

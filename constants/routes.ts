@@ -1,6 +1,8 @@
 export const Routes = {
   home: '/' as const,
   camera: '/camera' as const,
+  barcodeCamera: '/barcodeCamera' as const,
+  cameraTypeSelect: '/cameraSelection' as const,
   search: '/search' as const,
   productConfirm: '/product/confirm' as const,
   productCreate: '/product/create' as const,

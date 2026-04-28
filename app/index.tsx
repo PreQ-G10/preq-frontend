@@ -8,6 +8,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
 import { Pressable, SafeAreaView, Text, TouchableOpacity, View } from 'react-native';
+import 'react-native-reanimated';
 import { styles } from './index.styles';
 
 const tips = [
