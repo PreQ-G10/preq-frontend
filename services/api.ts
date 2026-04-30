@@ -1,5 +1,6 @@
 import { API } from '@/constants/api';
 import {
+  BarcodeDetectionResponse,
   CreateProductRequest,
   Location,
   LocationDetectionResponse,
@@ -43,8 +44,16 @@ export const productService = {
     return handleResponse(res);
   },
 
-  async detectByBarcode(barcode: string): Promise<ProductDetectionResponse[]> {
+  async detectByBarcode(barcode: string): Promise<BarcodeDetectionResponse> {
     const res = await fetchWithTimeout(API.endpoints.detectBarcode(barcode), { method: 'GET' });
+    return handleResponse(res);
+  },
+
+  async resolveBarcodeCollision(productId: number, barcode: string, confirm: boolean): Promise<Product> {
+    const res = await fetchWithTimeout(
+      `${API.endpoints.resolveBarcodeCollision(productId)}?barcode=${barcode}&confirm=${confirm}`,
+      { method: 'POST' }
+    );
     return handleResponse(res);
   },
 
@@ -90,14 +99,11 @@ export const locationService = {
     return handleResponse(res);
   },
 
-  async detectNearby(imageUri: string, latitude: number, longitude: number): Promise<LocationDetectionResponse | null> {
-    const form = new FormData();
-    form.append('image', { uri: imageUri, type: 'image/jpeg', name: 'photo.jpg' } as any);
+  async detectNearby(latitude: number, longitude: number): Promise<LocationDetectionResponse | null> {
     const res = await fetchWithTimeout(
       `${API.endpoints.detectNearbyLocation}?latitude=${latitude}&longitude=${longitude}`,
-      { method: 'POST', body: form }
+      { method: 'POST' }
     );
-    if (res.status === 404) return null;
     return handleResponse(res);
   },
 

@@ -9,8 +9,10 @@ import * as Location from 'expo-location';
 import { router } from 'expo-router';
 import React, { useRef, useState } from 'react';
 import { SafeAreaView, Text, TouchableOpacity, View } from 'react-native';
-import { Camera, useCameraDevice, useCameraPermission } from 'react-native-vision-camera';
+import { Camera, useCameraDevice, useCameraPermission, useCodeScanner } from 'react-native-vision-camera';
 import { styles } from './camera.styles';
+
+type CameraMode = 'image' | 'barcode';
 
 export default function CameraScreen() {
   const { hasPermission, requestPermission } = useCameraPermission();
@@ -18,6 +20,14 @@ export default function CameraScreen() {
   const cameraRef = useRef<Camera>(null);
   const detectingRef = useRef(false);
   const [detecting, setDetecting] = useState(false);
+  const [scanPaused, setScanPaused] = useState(false);
+  const [mode, setMode] = useState<CameraMode>('image');
+
+  async function getLocation() {
+    const { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== 'granted') return null;
+    return Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
+  }
 
   async function compressImage(uri: string): Promise<string> {
     const result = await ImageManipulator.manipulateAsync(
@@ -27,6 +37,69 @@ export default function CameraScreen() {
     );
     return result.uri;
   }
+
+  // ── Barcode mode ──────────────────────────────────────────────────────────
+
+  const codeScanner = useCodeScanner({
+    codeTypes: ['ean-13'],
+    onCodeScanned: (codes) => {
+      if (codes.length > 0 && !detectingRef.current && !scanPaused) {
+        const code = codes[0].value;
+        if (code && code.length > 0) handleBarcodeDetected(code);
+      }
+    },
+  });
+
+  async function handleBarcodeDetected(code: string) {
+    if (detectingRef.current) return;
+    detectingRef.current = true;
+    setScanPaused(true);
+    setDetecting(true);
+    try {
+      const [result, pos] = await Promise.all([
+        productService.detectByBarcode(code),
+        getLocation(),
+      ]);
+
+      const locationResult = pos
+        ? await locationService.detectNearby(pos.coords.latitude, pos.coords.longitude)
+        : null;
+      setDetectedLocation(locationResult);
+
+      if (result.status === 'NOT_FOUND' || result.status === 'INCOMPLETE_DATA') {
+        router.push({
+          pathname: Routes.productConfirm,
+          params: { 
+            source: 'barcode', 
+            barcodeStatus: result.status,
+            barcode: code,
+          },
+        });
+        return;
+      }
+
+      router.push({
+        pathname: Routes.productConfirm,
+        params: {
+          source: 'barcode',
+          barcodeStatus: result.status,
+          barcode: code,
+          results: JSON.stringify(
+            result.status === 'COLLISION'
+              ? [result.existingProduct]
+              : [result.product]
+          ),
+        },
+      });
+    } catch (error) {
+      console.error('Barcode detection failed:', error);
+      detectingRef.current = false;
+      setScanPaused(false);
+      setDetecting(false);
+    }
+  }
+
+  // ── Image mode ────────────────────────────────────────────────────────────
 
   async function handleCapture() {
     if (!cameraRef.current || detectingRef.current) return;
@@ -39,11 +112,8 @@ export default function CameraScreen() {
 
       const [results, locationResult] = await Promise.all([
         productService.detectByImage(compressed),
-        Location.requestForegroundPermissionsAsync().then(({ status }) =>
-          status === 'granted'
-            ? Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced })
-                .then(pos => locationService.detectNearby(uri, pos.coords.latitude, pos.coords.longitude))
-            : null
+        getLocation().then(pos =>
+          pos ? locationService.detectNearby(pos.coords.latitude, pos.coords.longitude) : null
         ),
       ]);
 
@@ -58,6 +128,17 @@ export default function CameraScreen() {
       setDetecting(false);
     }
   }
+
+  // ── Mode switch ───────────────────────────────────────────────────────────
+
+  function handleModeSwitch(newMode: CameraMode) {
+    if (detectingRef.current) return;
+    detectingRef.current = false;
+    setScanPaused(false);
+    setMode(newMode);
+  }
+
+  // ── Guards ────────────────────────────────────────────────────────────────
 
   if (!hasPermission) {
     return (
@@ -78,34 +159,61 @@ export default function CameraScreen() {
   if (!device) return <Spinner fullScreen message="Iniciando cámara..." />;
   if (detecting) return <Spinner fullScreen message="Analizando producto..." />;
 
+  // ── Render ────────────────────────────────────────────────────────────────
+
   return (
     <View style={styles.container}>
       <Camera
         ref={cameraRef}
         style={styles.camera}
         device={device}
-        isActive={true}
-        photo={true}
+        isActive={!scanPaused}
+        photo={mode === 'image'}
+        codeScanner={mode === 'barcode' && !scanPaused ? codeScanner : undefined}
       />
       <View style={styles.overlay}>
         <View style={styles.topBar}>
-          <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+          <TouchableOpacity style={styles.backButton} onPress={() => router.push(Routes.home)}>
             <Ionicons name="arrow-back" size={22} color={Colors.white} />
           </TouchableOpacity>
-          <View style={styles.autoLabel}>
-            <Text style={styles.autoLabelText}>Modo manual</Text>
+
+          <View style={styles.toggle}>
+            <TouchableOpacity
+              style={[styles.toggleOption, mode === 'image' && styles.toggleActive]}
+              onPress={() => handleModeSwitch('image')}
+            >
+              <Ionicons name="camera-outline" size={16} color={mode === 'image' ? Colors.primary : Colors.white} />
+              <Text style={[styles.toggleText, mode === 'image' && styles.toggleTextActive]}>
+                Foto
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.toggleOption, mode === 'barcode' && styles.toggleActive]}
+              onPress={() => handleModeSwitch('barcode')}
+            >
+              <Ionicons name="barcode-outline" size={16} color={mode === 'barcode' ? Colors.primary : Colors.white} />
+              <Text style={[styles.toggleText, mode === 'barcode' && styles.toggleTextActive]}>
+                Código
+              </Text>
+            </TouchableOpacity>
           </View>
         </View>
 
         <View style={styles.frameContainer}>
-          <View style={styles.frame} />
-          <Text style={styles.frameHint}>Centrá el producto en el recuadro</Text>
+          <View style={[styles.frame, mode === 'barcode' && styles.barcodeFrame]} />
+          <Text style={styles.frameHint}>
+            {mode === 'image'
+              ? 'Centrá el producto en el recuadro'
+              : 'Centrá el código de barras en el recuadro'}
+          </Text>
         </View>
 
         <View style={styles.bottomBar}>
-          <TouchableOpacity style={styles.captureButton} onPress={handleCapture} activeOpacity={0.85}>
-            <View style={styles.captureInner} />
-          </TouchableOpacity>
+          {mode === 'image' && (
+            <TouchableOpacity style={styles.captureButton} onPress={handleCapture} activeOpacity={0.85}>
+              <View style={styles.captureInner} />
+            </TouchableOpacity>
+          )}
         </View>
       </View>
     </View>
