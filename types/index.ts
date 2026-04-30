@@ -1,5 +1,14 @@
 export type LocationType = 'SUPERMARKET' | 'STORE' | 'PHARMACY' | 'OTHER';
 
+export type BarcodeDetectionStatus = 'FOUND' | 'CREATED' | 'COLLISION' | 'NOT_FOUND' | 'INCOMPLETE_DATA';
+
+export interface BarcodeDetectionResponse {
+  status: BarcodeDetectionStatus;
+  product?: ProductDetectionResponse;
+  apiProduct?: ProductDetectionResponse;
+  existingProduct?: ProductDetectionResponse;
+}
+
 export interface Product {
   id: number;
   name: string;

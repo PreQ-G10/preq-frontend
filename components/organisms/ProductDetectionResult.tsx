@@ -1,19 +1,22 @@
-import React from 'react';
-import { View } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { AppText, Button, Card } from '@/components/atoms';
 import { ConfidenceBanner, ProductCard } from '@/components/molecules';
 import { Colors } from '@/constants/theme';
 import { ProductDetectionResponse } from '@/types';
+import { Ionicons } from '@expo/vector-icons';
+import React from 'react';
+import { View } from 'react-native';
 import { styles } from './ProductDetectionResult.styles';
 
 interface ProductDetectionResultProps {
   results: ProductDetectionResponse[];
   onConfirm: (product: ProductDetectionResponse) => void;
   onReject: () => void;
+  confirmLabel?: string;
+  rejectLabel?: string;
+  submitting?: boolean;
 }
 
-export function ProductDetectionResult({ results, onConfirm, onReject }: ProductDetectionResultProps) {
+export function ProductDetectionResult({ results, onConfirm, onReject, confirmLabel, rejectLabel, submitting }: ProductDetectionResultProps) {
   const top = results[0];
 
   if (!top) {
@@ -41,15 +44,16 @@ export function ProductDetectionResult({ results, onConfirm, onReject }: Product
           <ConfidenceBanner isConfident={top.isConfident} similarity={top.similarity} />
           <View style={styles.actions}>
             <Button
-              label="No es este"
+              label={rejectLabel ?? 'No es este'}
               variant="secondary"
               style={styles.actionButton}
               onPress={onReject}
             />
             <Button
-              label="Sí, confirmar"
+              label={confirmLabel ?? 'Sí, confirmar'}
               variant="primary"
               style={styles.actionButton}
+              loading={submitting}
               onPress={() => onConfirm(top)}
             />
           </View>
