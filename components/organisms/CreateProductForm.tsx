@@ -12,12 +12,18 @@ interface CreateProductFormProps {
   onCreated: (product: Product) => void;
 }
 
-export function CreateProductForm({ photoUri, onCreated }: CreateProductFormProps) {
+interface CreateProductFormProps {
+  photoUri?: string;
+  initialBarcode?: string;
+  onCreated: (product: Product) => void;
+}
+
+export function CreateProductForm({ photoUri, initialBarcode, onCreated }: CreateProductFormProps) {
   const [name, setName] = useState('');
   const [brand, setBrand] = useState('');
   const [quantity, setQuantity] = useState('');
   const [quantityType, setQuantityType] = useState('');
-  const [barcode, setBarcode] = useState('');
+  const [barcode, setBarcode] = useState(initialBarcode ?? '');
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -64,7 +70,21 @@ export function CreateProductForm({ photoUri, onCreated }: CreateProductFormProp
         <Input label="Cantidad" value={quantity} onChangeText={setQuantity} placeholder="485" keyboardType="numeric" error={errors.quantity} style={styles.flex} />
         <Input label="Unidad" value={quantityType} onChangeText={setQuantityType} placeholder="g / ml / u" error={errors.quantityType} style={styles.flex} />
       </View>
-      <Input label="Código de barras (opcional)" value={barcode} onChangeText={setBarcode} placeholder="7790001234567" keyboardType="numeric" />
+      <View>
+        <Input
+          label="Código de barras (opcional)"
+          value={barcode}
+          onChangeText={setBarcode}
+          placeholder="7790001234567"
+          keyboardType="numeric"
+        />
+        {initialBarcode && (
+          <View style={styles.autocompleteBadge}>
+            <Ionicons name="checkmark-circle" size={14} color={Colors.success} />
+            <AppText variant="bodySmall" color="success">Autocompletado desde el escaneo</AppText>
+          </View>
+        )}
+      </View>
       <Button label="Crear producto" onPress={handleSubmit} loading={loading} fullWidth style={styles.submitButton} />
     </View>
   );

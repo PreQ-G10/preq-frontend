@@ -14,5 +14,6 @@ export const API = {
     priceDetails: (productId: number) => `${BASE_URL}/api/prices/${productId}`,
     uploadProductImage: (productId: number) => `${BASE_URL}/api/products/${productId}/image`,
     detectNearbyLocation: `${BASE_URL}/api/locations/nearby`,
+    resolveBarcodeCollision: (productId: number) => `${BASE_URL}/api/products/${productId}/resolve-barcode-collision`,
   },
 };

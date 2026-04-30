@@ -7,7 +7,6 @@ export default function RootLayout() {
       <Stack.Screen name="index" />
       <Stack.Screen name="search" />
       <Stack.Screen name="camera" />
-      <Stack.Screen name="barcodeCamera" />
       <Stack.Screen name="cameraSelection" />
       <Stack.Screen name="product/confirm" />
       <Stack.Screen name="price/collaborate" />

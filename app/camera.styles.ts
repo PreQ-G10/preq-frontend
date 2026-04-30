@@ -96,4 +96,35 @@ export const styles = StyleSheet.create({
     borderRadius: Radius.full,
     backgroundColor: Colors.primary,
   },
+  toggle: {
+    flexDirection: 'row',
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    borderRadius: 20,
+    padding: 3,
+    gap: 2,
+  },
+  toggleOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+  },
+  toggleActive: {
+    backgroundColor: Colors.white,
+  },
+  toggleText: {
+    fontSize: 13,
+    color: Colors.white,
+    fontWeight: '500',
+  },
+  toggleTextActive: {
+    color: Colors.primary,
+  },
+  barcodeFrame: {
+    width: '85%',
+    height: 120,
+    borderRadius: 8,
+  },
 });
