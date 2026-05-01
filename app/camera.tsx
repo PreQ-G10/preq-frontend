@@ -4,6 +4,7 @@ import { Colors } from '@/constants/theme';
 import { locationService, productService } from '@/services/api';
 import { setDetectedLocation } from '@/services/maps';
 import { Ionicons } from '@expo/vector-icons';
+import { useIsFocused } from '@react-navigation/native';
 import * as ImageManipulator from 'expo-image-manipulator';
 import * as Location from 'expo-location';
 import { router } from 'expo-router';
@@ -20,6 +21,7 @@ export default function CameraScreen() {
   const cameraRef = useRef<Camera>(null);
   const detectingRef = useRef(false);
   const [detecting, setDetecting] = useState(false);
+<<<<<<< HEAD
   const [scanPaused, setScanPaused] = useState(false);
   const [mode, setMode] = useState<CameraMode>('image');
 
@@ -28,6 +30,9 @@ export default function CameraScreen() {
     if (status !== 'granted') return null;
     return Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
   }
+=======
+  const isFocused = useIsFocused();
+>>>>>>> 40af531 (Fixed camera, automatic location detection and minimaps compatibilities with android)
 
   async function compressImage(uri: string): Promise<string> {
     const result = await ImageManipulator.manipulateAsync(
@@ -35,6 +40,7 @@ export default function CameraScreen() {
       [{ resize: { width: 800 } }],
       { compress: 0.7, format: ImageManipulator.SaveFormat.JPEG }
     );
+    console.log("Compressing:", uri);
     return result.uri;
   }
 
@@ -102,7 +108,7 @@ export default function CameraScreen() {
   // ── Image mode ────────────────────────────────────────────────────────────
 
   async function handleCapture() {
-    if (!cameraRef.current || detectingRef.current) return;
+    if (!cameraRef.current || !isFocused || detectingRef.current) return;
     detectingRef.current = true;
     setDetecting(true);
     try {
@@ -124,6 +130,7 @@ export default function CameraScreen() {
       });
     } catch (error) {
       console.error('Detection failed:', error);
+    } finally {
       detectingRef.current = false;
       setDetecting(false);
     }
@@ -157,7 +164,6 @@ export default function CameraScreen() {
   }
 
   if (!device) return <Spinner fullScreen message="Iniciando cámara..." />;
-  if (detecting) return <Spinner fullScreen message="Analizando producto..." />;
 
   // ── Render ────────────────────────────────────────────────────────────────
 
@@ -167,9 +173,14 @@ export default function CameraScreen() {
         ref={cameraRef}
         style={styles.camera}
         device={device}
+<<<<<<< HEAD
         isActive={!scanPaused}
         photo={mode === 'image'}
         codeScanner={mode === 'barcode' && !scanPaused ? codeScanner : undefined}
+=======
+        isActive={isFocused}
+        photo={true}
+>>>>>>> 40af531 (Fixed camera, automatic location detection and minimaps compatibilities with android)
       />
       <View style={styles.overlay}>
         <View style={styles.topBar}>
@@ -216,6 +227,13 @@ export default function CameraScreen() {
           )}
         </View>
       </View>
+      {detecting && (
+      <View style={styles.loadingOverlay}>
+        <Spinner fullScreen message="Analizando producto..." />
+      </View>
+      )}
     </View>
   );
+  
 }
+
