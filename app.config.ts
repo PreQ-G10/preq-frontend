@@ -1,4 +1,6 @@
-{
+import 'dotenv/config';
+
+export default {
   "expo": {
     "name": "preq-frontend",
     "slug": "preq-frontend",
@@ -21,7 +23,7 @@
       },
       "config": {
         "googleMaps": {
-          "apiKey": ""
+          "apiKey": process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY
         }
       },
       "edgeToEdgeEnabled": true,
