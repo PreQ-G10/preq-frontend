@@ -1,4 +1,4 @@
-const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:8080';
+const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'https://squiggly-decode-contort.ngrok-free.dev';
 
 export const API = {
   baseUrl: BASE_URL,
