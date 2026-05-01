@@ -99,6 +99,7 @@ export default function CameraScreen() {
       });
     } catch (error) {
       console.error('Barcode detection failed:', error);
+    } finally {
       detectingRef.current = false;
       setScanPaused(false);
       setDetecting(false);
