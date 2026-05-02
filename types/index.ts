@@ -81,3 +81,23 @@ export interface LocationDetectionResponse {
   geolocation: GeolocationDetectionResponse;
   distanceMeters: number;
 }
+
+export interface RegisterRequest {
+  name: string;
+  lastName: string;
+  address?: string;
+  latitude?: number;
+  longitude?: number;
+  email: string;
+  password: string;
+}
+ 
+export interface LoginRequest {
+  email: string;
+  password: string;
+}
+ 
+export interface AuthResponse {
+  accessToken: string;
+  refreshToken: string;
+}
