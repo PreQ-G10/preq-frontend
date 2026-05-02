@@ -15,5 +15,8 @@ export const API = {
     uploadProductImage: (productId: number) => `${BASE_URL}/api/products/${productId}/image`,
     detectNearbyLocation: `${BASE_URL}/api/locations/nearby`,
     resolveBarcodeCollision: (productId: number) => `${BASE_URL}/api/products/${productId}/resolve-barcode-collision`,
+    login: `${BASE_URL}/api/auth/login`,
+    refreshToken: `${BASE_URL}/api/auth/refresh-token`,
+    register: `${BASE_URL}/api/auth/register`,
   },
 };
