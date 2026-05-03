@@ -18,5 +18,6 @@ export const API = {
     login: `${BASE_URL}/api/auth/login`,
     refreshToken: `${BASE_URL}/api/auth/refresh-token`,
     register: `${BASE_URL}/api/auth/register`,
+    me: `${BASE_URL}/api/users/me`,
   },
 };

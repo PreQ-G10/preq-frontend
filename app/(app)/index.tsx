@@ -43,7 +43,16 @@ export default function HomeScreen() {
     <SafeAreaView style={styles.container}>
       <Pressable style={styles.container} onPress={handleDismiss}>
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>preq</Text>
+          <View style={styles.headerTop}>
+            <Text style={styles.headerTitle}>preq</Text>
+            <TouchableOpacity
+              style={styles.profileButton}
+              onPress={() => router.push(Routes.profile)}
+              activeOpacity={0.8}
+            >
+              <Ionicons name="person-outline" size={18} color={Colors.white} />
+            </TouchableOpacity>
+          </View>
           <Text style={styles.headerSubtitle}>Compará precios de productos en tu zona</Text>
         </View>
 

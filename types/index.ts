@@ -101,3 +101,20 @@ export interface AuthResponse {
   accessToken: string;
   refreshToken: string;
 }
+
+export interface UserProfile {
+  name: string;
+  lastName: string;
+  email: string;
+  address?: string;
+  latitude?: number;
+  longitude?: number;
+}
+
+export interface UpdateUserRequest {
+  name: string;
+  lastName: string;
+  address?: string;
+  latitude?: number;
+  longitude?: number;
+}
