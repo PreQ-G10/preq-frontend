@@ -107,4 +107,17 @@ export const styles = StyleSheet.create({
     paddingHorizontal: Spacing.md,
     alignItems: 'center',
   },
+  headerTop: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  profileButton: {
+    width: 36,
+    height: 36,
+    borderRadius: Radius.full,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 });
