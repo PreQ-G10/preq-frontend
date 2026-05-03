@@ -12,7 +12,11 @@ export default {
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.preqfrontend"
+      "bundleIdentifier": "com.anonymous.preqfrontend",
+      "infoPlist": {
+        "NSCameraUsageDescription": "Necesitamos acceso a tu cámara para escanear productos",
+        "NSMicrophoneUsageDescription": "Necesitamos acceso al micrófono para usar la cámara"
+      }
     },
     "android": {
       "adaptiveIcon": {
