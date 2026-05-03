@@ -158,7 +158,7 @@ export const locationService = {
 
 export const priceService = {
   async report(productId: number, locationId: number, price: number): Promise<void> {
-    await fetch(API.endpoints.reportPrice, {
+    await fetchAuthenticated(API.endpoints.reportPrice, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ productId, locationId, price }),
@@ -166,14 +166,14 @@ export const priceService = {
   },
 
   async getSummary(productId: number): Promise<PriceSummaryResponse> {
-    const res = await fetch(API.endpoints.priceDetails(productId));
+    const res = await fetchAuthenticated(API.endpoints.priceDetails(productId));
     return handleResponse(res);
   },
 };
 
 export const authService = {
   async login(request: LoginRequest): Promise<AuthResponse> {
-    const res = await fetch(API.endpoints.login, {
+    const res = await fetchAuthenticated(API.endpoints.login, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', ...DEFAULT_HEADERS },
       body: JSON.stringify(request),
@@ -188,7 +188,7 @@ export const authService = {
   },
 
   async register(request: RegisterRequest): Promise<AuthResponse> {
-    const res = await fetch(API.endpoints.register, {
+    const res = await fetchAuthenticated(API.endpoints.register, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', ...DEFAULT_HEADERS },
       body: JSON.stringify(request),
