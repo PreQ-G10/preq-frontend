@@ -10,6 +10,8 @@ import {
   Product,
   ProductDetectionResponse,
   RegisterRequest,
+  UpdateUserRequest,
+  UserProfile,
 } from '@/types';
 import { tokenStorage } from '@/utils/tokenStorage';
 
@@ -224,5 +226,21 @@ export const authService = {
  
   async logout(): Promise<void> {
     await tokenStorage.clearTokens();
+  },
+};
+
+export const userService = {
+  async getProfile(): Promise<UserProfile> {
+    const res = await fetchAuthenticated(API.endpoints.me);
+    return handleResponse(res);
+  },
+
+  async updateProfile(request: UpdateUserRequest): Promise<UserProfile> {
+    const res = await fetchAuthenticated(API.endpoints.me, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    });
+    return handleResponse(res);
   },
 };
