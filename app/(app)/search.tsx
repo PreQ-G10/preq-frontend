@@ -36,8 +36,7 @@ export default function SearchScreen() {
   }
 
   function handleProductPress(product: Product) {
-    setSelectedProduct(product);
-    setShowCollaborate(true);
+    router.push(Routes.productDetails(product.id));
   }
 
   function handleCollaborate() {

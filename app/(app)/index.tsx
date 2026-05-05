@@ -1,7 +1,8 @@
 import { AppText, Card, Spinner } from '@/components/atoms';
 import { SearchBar } from '@/components/molecules';
 import { Routes } from '@/constants/routes';
-import { Colors } from '@/constants/theme';
+import { Colors, Spacing } from '@/constants/theme';
+import { useCart } from '@/context/cartContext';
 import { productService } from '@/services/api';
 import { Product } from '@/types';
 import { Ionicons } from '@expo/vector-icons';
@@ -22,6 +23,7 @@ export default function HomeScreen() {
   const [results, setResults] = useState<Product[]>([]);
   const [searching, setSearching] = useState(false);
   const [showResults, setShowResults] = useState(false);
+  const { totalItems } = useCart();
 
   async function handleSearch() {
     if (!query.trim()) return;
@@ -45,13 +47,27 @@ export default function HomeScreen() {
         <View style={styles.header}>
           <View style={styles.headerTop}>
             <Text style={styles.headerTitle}>preq</Text>
-            <TouchableOpacity
-              style={styles.profileButton}
-              onPress={() => router.push(Routes.profile)}
-              activeOpacity={0.8}
-            >
-              <Ionicons name="person-outline" size={18} color={Colors.white} />
-            </TouchableOpacity>
+            <View style={{ flexDirection: 'row', gap: Spacing.sm }}>
+              <TouchableOpacity
+                style={styles.profileButton}
+                onPress={() => router.push(Routes.cart)}
+                activeOpacity={0.8}
+              >
+                <Ionicons name="cart-outline" size={18} color={Colors.white} />
+                {totalItems > 0 && (
+                  <View style={styles.cartCountBadge}>
+                    <AppText variant="caption" color="white" style={{ fontSize: 9 }}>{totalItems}</AppText>
+                  </View>
+                )}
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.profileButton}
+                onPress={() => router.push(Routes.profile)}
+                activeOpacity={0.8}
+              >
+                <Ionicons name="person-outline" size={18} color={Colors.white} />
+              </TouchableOpacity>
+            </View>
           </View>
           <Text style={styles.headerSubtitle}>Compará precios de productos en tu zona</Text>
         </View>

@@ -1,4 +1,5 @@
 import { AuthProvider, useAuth } from '@/context/authContext';
+import { CartProvider } from '@/context/cartContext';
 import { Slot, useRouter, useSegments } from 'expo-router';
 import { useEffect } from 'react';
 
@@ -25,7 +26,9 @@ function RouteGuard() {
 export default function RootLayout() {
   return (
     <AuthProvider>
-      <RouteGuard />
+      <CartProvider>
+        <RouteGuard />
+      </CartProvider>
     </AuthProvider>
   );
 }
