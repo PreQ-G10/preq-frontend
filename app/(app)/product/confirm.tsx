@@ -72,7 +72,7 @@ export default function ProductConfirmScreen() {
     if (source === 'image' && photoUri) {
       await productService.confirmImage(product.productId, photoUri, product.similarity);
     }
-    router.push({ pathname: Routes.priceCollaborate, params: { productId: product.productId } });
+    router.push(Routes.productDetails(product.productId));
   }
 
   async function handleConfirmCollision() {
@@ -80,7 +80,7 @@ export default function ProductConfirmScreen() {
     setSubmitting(true);
     try {
       await productService.resolveBarcodeCollision(collisionProduct.productId, barcode, true);
-      router.push({ pathname: Routes.priceCollaborate, params: { productId: collisionProduct.productId } });
+      router.push(Routes.productDetails(collisionProduct.productId));
     } finally {
       setSubmitting(false);
     }
@@ -91,11 +91,11 @@ export default function ProductConfirmScreen() {
   }
 
   function handleSelectFromSearch(product: Product) {
-    router.push({ pathname: Routes.priceCollaborate, params: { productId: product.id } });
+    router.push(Routes.productDetails(product.id));
   }
 
   function handleProductCreated(product: Product) {
-    router.push({ pathname: Routes.priceCollaborate, params: { productId: product.id } });
+    router.push(Routes.productDetails(product.id));
   }
 
   function handleBack() {
@@ -124,8 +124,8 @@ export default function ProductConfirmScreen() {
           {step === 'barcodeFound' && foundProduct && (
             <BarcodeProductFound
               product={foundProduct}
-              onCollaborate={() => router.push({ pathname: Routes.priceCollaborate, params: { productId: foundProduct.productId } })}
-              onViewPrices={() => router.push(Routes.priceDetails(foundProduct.productId))}
+              onCollaborate={() => router.push(Routes.productDetails(foundProduct.productId))}
+              onViewPrices={() => router.push(Routes.productDetails(foundProduct.productId))}
             />
           )}
 
