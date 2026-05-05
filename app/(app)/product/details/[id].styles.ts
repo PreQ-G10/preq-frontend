@@ -1,0 +1,172 @@
+import { Colors, Radius, Spacing, Typography } from '@/constants/theme';
+import { Dimensions, StyleSheet } from 'react-native';
+const { width } = Dimensions.get('window');
+
+
+export const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: Colors.background },
+  centered: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: Spacing.md },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: Spacing.lg,
+    paddingTop: Spacing.xl,
+    paddingBottom: Spacing.lg,
+    backgroundColor: Colors.primary,
+  },
+  headerButton: {
+    width: 36,
+    height: 36,
+    borderRadius: Radius.full,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  headerTitle: { flex: 1, textAlign: 'center' },
+  cartDot: {
+    position: 'absolute',
+    top: 6,
+    right: 6,
+    width: 8,
+    height: 8,
+    borderRadius: Radius.full,
+    backgroundColor: Colors.warning,
+  },
+  content: { gap: Spacing.md, paddingBottom: Spacing.xxl },
+  galleryContainer: {
+    position: 'relative',
+  },
+  productImage: {
+    width: width,
+    height: 280,
+  },
+  dots: {
+    position: 'absolute',
+    bottom: Spacing.sm,
+    left: 0,
+    right: 0,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: Spacing.xs,
+  },
+  dot: {
+    width: 6,
+    height: 6,
+    borderRadius: Radius.full,
+    backgroundColor: 'rgba(255,255,255,0.5)',
+  },
+  dotActive: {
+    backgroundColor: Colors.white,
+    width: 18,
+  },
+  imagePlaceholder: {
+    height: 200,
+    backgroundColor: Colors.gray100,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  productSection: {
+    paddingHorizontal: Spacing.lg,
+    gap: 4,
+  },
+  priceSnapshot: {
+    gap: Spacing.md,
+  },
+  priceMain: {
+    alignItems: 'center',
+    gap: 4,
+  },
+  priceValue: {
+    fontSize: Typography.sizes.xxl,
+    fontWeight: Typography.weights.black,
+    color: Colors.text,
+    lineHeight: Typography.sizes.xxl * 1.3,
+  },
+  priceDivider: {
+    height: 1,
+    backgroundColor: Colors.border,
+  },
+  priceRange: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+  },
+  priceRangeItem: {
+    alignItems: 'center',
+    gap: 2,
+  },
+  emptyPrice: {
+    alignItems: 'center',
+    gap: Spacing.sm,
+    paddingVertical: Spacing.sm,
+  },
+  cartRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.md,
+  },
+  cartButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.xs,
+    paddingVertical: Spacing.sm,
+    paddingHorizontal: Spacing.md,
+    borderRadius: Radius.md,
+    borderWidth: 1.5,
+    borderColor: Colors.primary,
+  },
+  cartButtonActive: {
+    backgroundColor: Colors.primary,
+    borderColor: Colors.primary,
+  },
+  cardContent: {
+    paddingHorizontal: Spacing.lg,
+  },
+  actions: {
+    alignItems: 'center',
+    gap: Spacing.md,
+    paddingHorizontal: Spacing.xxl,
+  },
+  cartSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: Spacing.md,
+  },
+  cartInfo: {
+    flex: 1,
+    gap: 2,
+  },
+  quantityControls: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+  },
+  qtyButton: {
+    width: 32,
+    height: 32,
+    borderRadius: Radius.sm,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: Colors.surface,
+  },
+  qtyButtonDanger: {
+    borderColor: Colors.error,
+    backgroundColor: '#fff5f5',
+  },
+  qtyValue: {
+    minWidth: 24,
+    textAlign: 'center',
+  },
+  addButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.xs,
+    paddingVertical: Spacing.sm,
+    paddingHorizontal: Spacing.md,
+    borderRadius: Radius.md,
+    backgroundColor: Colors.primary,
+  },
+});

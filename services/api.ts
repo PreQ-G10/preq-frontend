@@ -79,6 +79,11 @@ export const productService = {
     return handleResponse(res);
   },
 
+  async getById(id: number): Promise<Product> {
+    const res = await fetchAuthenticated(API.endpoints.productById(id));
+    return handleResponse(res);
+  },
+
   async detectByBarcode(barcode: string): Promise<BarcodeDetectionResponse> {
     const res = await fetchAuthenticated(API.endpoints.detectBarcode(barcode), { method: 'GET' });
     return handleResponse(res);

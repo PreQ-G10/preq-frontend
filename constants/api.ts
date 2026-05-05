@@ -19,5 +19,6 @@ export const API = {
     refreshToken: `${BASE_URL}/api/auth/refresh-token`,
     register: `${BASE_URL}/api/auth/register`,
     me: `${BASE_URL}/api/users/me`,
+    productById: (id: number) => `${BASE_URL}/api/products/${id}`,
   },
 };
