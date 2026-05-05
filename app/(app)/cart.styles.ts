@@ -1,0 +1,100 @@
+import { Colors, Radius, Spacing, Typography } from '@/constants/theme';
+import { StyleSheet } from 'react-native';
+
+export const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: Colors.background },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: Spacing.lg,
+    paddingTop: Spacing.xl,
+    paddingBottom: Spacing.lg,
+    backgroundColor: Colors.primary,
+  },
+  backButton: {
+    width: 36,
+    height: 36,
+    borderRadius: Radius.full,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  clearButton: {
+    width: 36,
+    height: 36,
+    borderRadius: Radius.full,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  headerTitle: { flex: 1, textAlign: 'center' },
+  empty: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: Spacing.xl,
+    gap: Spacing.md,
+  },
+  emptyIcon: {
+    width: 96,
+    height: 96,
+    borderRadius: Radius.full,
+    backgroundColor: Colors.gray100,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: Spacing.sm,
+  },
+  content: {
+    padding: Spacing.lg,
+    gap: Spacing.md,
+  },
+  itemCount: {
+    marginBottom: Spacing.xs,
+  },
+  itemRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.md,
+  },
+  itemIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: Radius.md,
+    backgroundColor: '#fff0f5',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  itemInfo: { flex: 1, gap: 2 },
+  quantityControls: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+  },
+  qtyButton: {
+    width: 32,
+    height: 32,
+    borderRadius: Radius.sm,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: Colors.surface,
+  },
+  qtyButtonDanger: {
+    borderColor: Colors.error,
+    backgroundColor: '#fff5f5',
+  },
+  qtyValue: {
+    minWidth: 24,
+    textAlign: 'center',
+    fontSize: Typography.sizes.md,
+  },
+  footer: {
+    padding: Spacing.lg,
+    paddingBottom: Spacing.xxl,
+    borderTopWidth: 1,
+    borderTopColor: Colors.border,
+    backgroundColor: Colors.white,
+  },
+});
