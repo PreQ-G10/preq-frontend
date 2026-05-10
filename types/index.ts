@@ -2,6 +2,8 @@ export type LocationType = 'SUPERMARKET' | 'STORE' | 'PHARMACY' | 'OTHER';
 
 export type BarcodeDetectionStatus = 'FOUND' | 'CREATED' | 'COLLISION' | 'NOT_FOUND' | 'INCOMPLETE_DATA';
 
+export type PriceSource = 'REPORTED' | 'NEARBY_FALLBACK' | 'GLOBAL_FALLBACK' | 'NO_DATA';
+
 export interface BarcodeDetectionResponse {
   status: BarcodeDetectionStatus;
   product?: ProductDetectionResponse;
@@ -117,4 +119,27 @@ export interface UpdateUserRequest {
   address?: string;
   latitude?: number;
   longitude?: number;
+}
+
+export interface CartProductResponse {
+  productId: number;
+  name: string;
+  quantity: number;
+  unitPrice: number;
+  totalPrice: number;
+  priceSource: PriceSource;
+}
+
+export interface CartLocationResponse {
+  locationId: number;
+  name: string;
+  address: string;
+  totalEstimatedPrice: number;
+  distanceMeters?: number;
+  products: CartProductResponse[];
+}
+
+export interface CartCompareResponse {
+  locations: CartLocationResponse[];
+  skippedProducts: string[];
 }
