@@ -2,6 +2,8 @@ import { API } from '@/constants/api';
 import {
   AuthResponse,
   BarcodeDetectionResponse,
+  CartCompareRequest,
+  CartCompareResponse,
   CreateProductRequest,
   Location,
   LocationDetectionResponse,
@@ -243,6 +245,17 @@ export const userService = {
   async updateProfile(request: UpdateUserRequest): Promise<UserProfile> {
     const res = await fetchAuthenticated(API.endpoints.me, {
       method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    });
+    return handleResponse(res);
+  },
+};
+
+export const cartService = {
+  async compare(request: CartCompareRequest): Promise<CartCompareResponse> {
+    const res = await fetchAuthenticated(API.endpoints.cartCompare, {
+      method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(request),
     });

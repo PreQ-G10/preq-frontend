@@ -1,4 +1,4 @@
-const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'https://squiggly-decode-contort.ngrok-free.dev';
+const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'localhost:8080';
 
 export const API = {
   baseUrl: BASE_URL,
@@ -20,5 +20,6 @@ export const API = {
     register: `${BASE_URL}/api/auth/register`,
     me: `${BASE_URL}/api/users/me`,
     productById: (id: number) => `${BASE_URL}/api/products/${id}`,
+    cartCompare: `${BASE_URL}/api/cart/compare`,
   },
 };
