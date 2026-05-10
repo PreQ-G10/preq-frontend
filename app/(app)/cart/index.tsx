@@ -6,12 +6,12 @@ import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React from 'react';
 import {
-    SafeAreaView,
-    ScrollView,
-    TouchableOpacity,
-    View
+  SafeAreaView,
+  ScrollView,
+  TouchableOpacity,
+  View
 } from 'react-native';
-import { styles } from './cart.styles';
+import { styles } from './index.styles';
 
 export default function CartScreen() {
   const { items, updateQuantity, clearCart, totalItems } = useCart();
@@ -93,10 +93,10 @@ export default function CartScreen() {
 
           <View style={styles.footer}>
             <Button
-              label="Comparar precios por local"
+              label="Comparar precios ubicacion"
               variant="primary"
               fullWidth
-              onPress={() => {/* backend comparison — next step */}}
+              onPress={() => router.push(Routes.cartCompare)}
             />
           </View>
         </>

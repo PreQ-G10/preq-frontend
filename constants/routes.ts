@@ -11,4 +11,5 @@ export const Routes = {
   priceDetails: (id: number) => `/price/details/${id}` as const,
   profile: '/profile' as const,
   cart: '/cart' as const,
+  cartCompare: '/cart/compare' as const,
 };
