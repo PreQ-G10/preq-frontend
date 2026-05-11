@@ -143,3 +143,9 @@ export interface CartCompareResponse {
   locations: CartLocationResponse[];
   skippedProducts: string[];
 }
+
+export interface CartCompareRequest {
+  items: { productId: number; quantity: number }[];
+  userLatitude?: number;
+  userLongitude?: number;
+}
