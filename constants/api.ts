@@ -16,7 +16,7 @@ export const API = {
     createLocation: `${BASE_URL}/api/locations`,
     reportPrice: `${BASE_URL}/api/prices`,
     priceDetails: (productId: number) => `${BASE_URL}/api/prices/${productId}`,
-    heatmapData: (prodctId?: number, latitude?: number, longitude?: number) => `${BASE_URL}/api/prices/heatmap?productId=${prodctId}&latidude=${latitude}&longitude=${longitude}`,
+    heatmapData: (productId: number) => `${BASE_URL}/api/prices/${productId}/heatmap`,
     uploadProductImage: (productId: number) => `${BASE_URL}/api/products/${productId}/image`,
     detectNearbyLocation: `${BASE_URL}/api/locations/nearby`,
     resolveBarcodeCollision: (productId: number) => `${BASE_URL}/api/products/${productId}/resolve-barcode-collision`,
