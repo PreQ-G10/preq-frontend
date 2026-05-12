@@ -4,7 +4,11 @@ export type FieldType = 'BRAND' | 'NAME' | 'QUANTITY' | 'QUANTITY_TYPE' | 'BARCO
 
 export type BarcodeDetectionStatus = 'FOUND' | 'CREATED' | 'COLLISION' | 'NOT_FOUND' | 'INCOMPLETE_DATA';
 
+<<<<<<< HEAD
 export type PriceSource = 'REPORTED' | 'NEARBY_FALLBACK' | 'GLOBAL_FALLBACK' | 'NO_DATA';
+=======
+export type LocationDetectionStatus = 'FOUND' | 'NOT_FOUND' ;
+>>>>>>> b52a0b2 (created the map screen, and api consuming endpoint for it, need to recheck the data sent/received)
 
 export type LocationDetectionStatus = 'FOUND' | 'NOT_FOUND';
 
