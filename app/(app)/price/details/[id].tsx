@@ -35,7 +35,16 @@ export default function PriceDetailsScreen() {
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {summary && summary.avgPrice > 0 ? (
-          <PriceSummaryPanel summary={summary} />
+          <>
+            <PriceSummaryPanel summary={summary} />
+            <Button
+              label="Ver mapa de calor"
+              variant="secondary"
+              fullWidth
+              style={{ marginTop: 16 }}
+              onPress={() => router.push(Routes.priceHeatmap(Number(id)))}
+            />
+          </>
         ) : (
           <View style={styles.emptyContainer}>
             <Ionicons name="pricetag-outline" size={48} color={Colors.gray300} />
