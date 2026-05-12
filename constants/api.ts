@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'localhost:8080';
-=======
-const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'https://localhost:8080';
->>>>>>> b52a0b2 (created the map screen, and api consuming endpoint for it, need to recheck the data sent/received)
 
 export const API = {
   baseUrl: BASE_URL,
@@ -16,7 +12,7 @@ export const API = {
     createLocation: `${BASE_URL}/api/locations`,
     reportPrice: `${BASE_URL}/api/prices`,
     priceDetails: (productId: number) => `${BASE_URL}/api/prices/${productId}`,
-    heatmapData: (productId: number) => `${BASE_URL}/api/prices/${productId}/heatmap`,
+    heatmapData: (prodctId?: number) => `${BASE_URL}/api/prices/${prodctId}/heatmap`,
     uploadProductImage: (productId: number) => `${BASE_URL}/api/products/${productId}/image`,
     detectNearbyLocation: `${BASE_URL}/api/locations/nearby`,
     resolveBarcodeCollision: (productId: number) => `${BASE_URL}/api/products/${productId}/resolve-barcode-collision`,
