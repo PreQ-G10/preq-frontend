@@ -5,16 +5,16 @@ import {
   CartCompareRequest,
   CartCompareResponse,
   CreateProductRequest,
+  HeatmapPointResponse,
   Location,
   LocationDetectionResponse,
-  LocationProductPrice,
   LoginRequest,
   PriceSummaryResponse,
   Product,
   ProductDetectionResponse,
   RegisterRequest,
   UpdateUserRequest,
-  UserProfile,
+  UserProfile
 } from '@/types';
 import { tokenStorage } from '@/utils/tokenStorage';
 
@@ -180,8 +180,18 @@ export const priceService = {
     return handleResponse(res);
   },
 
-  async getHeatMapData(productId?: number, latitude?: number, longitude?: number): Promise<LocationProductPrice[]>{
-    const res = await fetchAuthenticated(API.endpoints.heatmapData(productId,latitude,longitude));
+  async getHeatMapData(productId: number, latitude?: number, longitude?: number, radius?: number): Promise<HeatmapPointResponse[]> {
+    const params = new URLSearchParams();
+    if (latitude !== undefined) params.append('latitude', latitude.toString());
+    if (longitude !== undefined) params.append('longitude', longitude.toString());
+    if (radius !== undefined) params.append('radius', radius.toString());
+
+    const queryString = params.toString();
+    console.log(queryString);
+    
+    const endpoint = API.endpoints.heatmapData(productId);
+    const url = queryString ? `${endpoint}?${queryString}` : endpoint;
+    const res = await fetchAuthenticated(url);
     return handleResponse(res);
   }
 };

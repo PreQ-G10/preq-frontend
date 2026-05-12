@@ -41,7 +41,6 @@ export default function PriceDetailsScreen() {
               label="Ver mapa de calor"
               variant="secondary"
               fullWidth
-              style={{ marginTop: 16 }}
               onPress={() => router.push(Routes.priceHeatmap(Number(id)))}
             />
           </>

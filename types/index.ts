@@ -154,3 +154,12 @@ export interface CartCompareRequest {
   userLatitude?: number;
   userLongitude?: number;
 }
+
+export interface HeatmapPointResponse{
+    locationId: number;
+    name: String,
+    address: String,
+    latitude: number,
+    longitude: number,
+    avgPrice: number,
+}
