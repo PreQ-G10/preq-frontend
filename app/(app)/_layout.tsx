@@ -11,6 +11,7 @@ export default function RootLayout() {
       <Stack.Screen name="product/confirm" />
       <Stack.Screen name="price/collaborate" />
       <Stack.Screen name="price/details/[id]" />
+      <Stack.Screen name="price/heatmap/[id]" />
       <Stack.Screen name="product/details/[id]" />
       <Stack.Screen name="cart/compare" />
       <Stack.Screen name="cart/index" />

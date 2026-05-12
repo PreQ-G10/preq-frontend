@@ -2,7 +2,11 @@ export type LocationType = 'SUPERMARKET' | 'STORE' | 'PHARMACY' | 'OTHER';
 
 export type BarcodeDetectionStatus = 'FOUND' | 'CREATED' | 'COLLISION' | 'NOT_FOUND' | 'INCOMPLETE_DATA';
 
+<<<<<<< HEAD
 export type PriceSource = 'REPORTED' | 'NEARBY_FALLBACK' | 'GLOBAL_FALLBACK' | 'NO_DATA';
+=======
+export type LocationDetectionStatus = 'FOUND' | 'NOT_FOUND' ;
+>>>>>>> b52a0b2 (created the map screen, and api consuming endpoint for it, need to recheck the data sent/received)
 
 export interface BarcodeDetectionResponse {
   status: BarcodeDetectionStatus;
@@ -79,9 +83,10 @@ export interface GeolocationDetectionResponse {
 }
 
 export interface LocationDetectionResponse {
-  location: Location;
-  geolocation: GeolocationDetectionResponse;
-  distanceMeters: number;
+  location?: Location;
+  geolocation?: GeolocationDetectionResponse;
+  distanceMeters?: number;
+  status: LocationDetectionStatus;
 }
 
 export interface RegisterRequest {
