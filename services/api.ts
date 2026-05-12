@@ -7,6 +7,7 @@ import {
   CreateProductRequest,
   Location,
   LocationDetectionResponse,
+  LocationProductPrice,
   LoginRequest,
   PriceSummaryResponse,
   Product,
@@ -178,6 +179,11 @@ export const priceService = {
     const res = await fetchAuthenticated(API.endpoints.priceDetails(productId));
     return handleResponse(res);
   },
+
+  async getHeatMapData(productId?: number, latitude?: number, longitude?: number): Promise<LocationProductPrice[]>{
+    const res = await fetchAuthenticated(API.endpoints.heatmapData(productId,latitude,longitude));
+    return handleResponse(res);
+  }
 };
 
 export const authService = {
