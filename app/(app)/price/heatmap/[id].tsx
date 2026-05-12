@@ -1,54 +1,114 @@
 import { AppText, Spinner } from '@/components/atoms';
 import { Colors } from '@/constants/theme';
-import { priceService, productService } from '@/services/api';
-import { LocationProductPrice, Product } from '@/types';
+import { priceService, productService, userService } from '@/services/api';
+import { HeatmapPointResponse, Product } from '@/types';
 import { Ionicons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
 import { router, useLocalSearchParams } from 'expo-router';
-import React, { useEffect, useState } from 'react';
-import { SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import MapView, { Heatmap, Marker, PROVIDER_GOOGLE } from 'react-native-maps';
+import React, { useCallback, useEffect, useState } from 'react';
+import { SafeAreaView, Text, TouchableOpacity, View } from 'react-native';
+import MapView, { Heatmap, Marker, PROVIDER_GOOGLE, Region } from 'react-native-maps';
+import { styles } from './[id].styles';
 
 function formatPrice(value: number) {
   return value.toLocaleString('es-AR', { style: 'currency', currency: 'ARS' });
 }
 
+const calculateRadius = (latitudeDelta: number): number => {
+  return (latitudeDelta / 2) * 111000;
+};
+
 export default function PriceHeatmapScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const [product, setProduct] = useState<Product | null>(null);
-  const [pricePoints, setPricePoints] = useState<LocationProductPrice[]>([]);
+  const [pricePoints, setPricePoints] = useState<HeatmapPointResponse[]>([]);
   const [points, setPoints] = useState<{ latitude: number; longitude: number; weight: number }[]>([]);
-  const [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number } | null>(null);
-  const [selectedPoint, setSelectedPoint] = useState<LocationProductPrice | null>(null);
+  const [selectedPoint, setSelectedPoint] = useState<HeatmapPointResponse | null>(null);
   const [loading, setLoading] = useState(true);
+  
+  const [mapRegion, setMapRegion] = useState<Region | null>(null);
+
+  const fetchHeatmapData = useCallback(async (
+    currentLatitude: number,
+    currentLongitude: number,
+    currentRadius: number
+  ) => {
+    try {
+      const data = await priceService.getHeatMapData(
+        Number(id),
+        currentLatitude,
+        currentLongitude,
+        currentRadius
+      );
+      setPricePoints(data);
+
+      if (data.length > 0) {
+        const prices = data.map(p => p.avgPrice);
+        const minPrice = Math.min(...prices);
+        const maxPrice = Math.max(...prices);
+        const range = maxPrice - minPrice;
+
+        setPoints(data.map((p: HeatmapPointResponse) => ({
+          latitude: p.latitude,
+          longitude: p.longitude,
+          weight: range === 0 ? 0.5 : (p.avgPrice - minPrice) / range,
+        })));
+      } else {
+        setPoints([]);
+      }
+    } catch (error) {
+      console.error('Error fetching heatmap data:', error);
+    }
+  }, [id]);
 
   useEffect(() => {
     async function loadData() {
       try {
+        setLoading(true);
         const [prod, { status }] = await Promise.all([
           productService.getById(Number(id)),
           Location.requestForegroundPermissionsAsync(),
         ]);
 
         setProduct(prod);
-        let lat: number | undefined;
-        let lng: number | undefined;
+
+        let lat = -34.6037; // Default: Buenos Aires
+        let lng = -58.3816;
+        let delta = 0.1;
+        let locationFound = false;
 
         if (status === 'granted') {
-          const pos = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
-          lat = pos.coords.latitude;
-          lng = pos.coords.longitude;
-          setUserLocation({ latitude: lat, longitude: lng });
+          try {
+            const pos = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
+            lat = pos.coords.latitude;
+            lng = pos.coords.longitude;
+            delta = 0.05;
+            locationFound = true;
+          } catch (e) {
+            console.warn('GPS failed, checking profile...');
+          }
         }
 
-        const data = await priceService.getHeatMapData(Number(id), lat, lng);
-        setPricePoints(data);
+        if (!locationFound) {
+          try {
+            const profile = await userService.getProfile();
+            if (profile.latitude && profile.longitude) {
+              lat = profile.latitude;
+              lng = profile.longitude;
+              delta = 0.05;
+            }
+          } catch (e) {}
+        }
 
-        setPoints(data.map((p: any) => ({
-          latitude: p.latitude,
-          longitude: p.longitude,
-          weight: p.price,
-        })));
+        setMapRegion({
+          latitude: lat,
+          longitude: lng,
+          latitudeDelta: delta,
+          longitudeDelta: delta,
+        });
+
+        await fetchHeatmapData(lat, lng, calculateRadius(delta));
+
       } catch (error) {
         console.error('Error loading heatmap data:', error);
       } finally {
@@ -56,25 +116,20 @@ export default function PriceHeatmapScreen() {
       }
     }
     loadData();
-  }, [id]);
+  }, [id, fetchHeatmapData]);
 
-  if (loading) return <Spinner fullScreen message="Cargando mapa de calor..." />;
+  if (loading) return <Spinner fullScreen message="Determinando ubicación..." />;
 
-  const initialRegion = points.length > 0 ? {
-    latitude: points[0].latitude,
-    longitude: points[0].longitude,
-    latitudeDelta: 0.05,
-    longitudeDelta: 0.05,
-  } : userLocation ? {
-    latitude: userLocation.latitude,
-    longitude: userLocation.longitude,
-    latitudeDelta: 0.1,
-    longitudeDelta: 0.1,
-  } : {
-    latitude: -34.6037,
-    longitude: -58.3816,
-    latitudeDelta: 0.1,
-    longitudeDelta: 0.1,
+  const handleRegionChangeComplete = (region: Region) => {
+    if (
+      Math.abs(region.latitude - mapRegion!.latitude) > 0.001 ||
+      Math.abs(region.longitude - mapRegion!.longitude) > 0.001 ||
+      Math.abs(region.latitudeDelta - mapRegion!.latitudeDelta) > 0.001
+    ) {
+      setMapRegion(region); 
+      const currentRadius = calculateRadius(region.latitudeDelta);
+      fetchHeatmapData(region.latitude, region.longitude, currentRadius);
+    }
   };
 
   return (
@@ -95,7 +150,9 @@ export default function PriceHeatmapScreen() {
         <MapView
           provider={PROVIDER_GOOGLE}
           style={styles.map}
-          initialRegion={initialRegion}
+          initialRegion={mapRegion!}
+          onRegionChangeComplete={handleRegionChangeComplete}
+          minZoomLevel={11}
         >
           {points.length > 0 && (
             <Heatmap
@@ -116,9 +173,13 @@ export default function PriceHeatmapScreen() {
               key={`${index}-${p.latitude}-${p.longitude}`}
               coordinate={{ latitude: p.latitude, longitude: p.longitude }}
               onPress={() => setSelectedPoint(p)}
-              pinColor={selectedPoint === p ? Colors.primary : Colors.secondary}
+              pinColor={selectedPoint === p ? Colors.primary : Colors.primaryDark}
               tracksViewChanges={false}
-            />
+            >
+              <View
+                style={{ opacity: 0,}}
+              />
+            </Marker>
           ))}
         </MapView>
       </View>
@@ -129,7 +190,7 @@ export default function PriceHeatmapScreen() {
           <View style={styles.addressHeader}>
             <Ionicons name="location" size={18} color={Colors.primary} />
             <View style={styles.addressTitle}>
-              <AppText variant="label">{formatPrice(selectedPoint.price)}</AppText>
+              <AppText variant="label">{formatPrice(selectedPoint.avgPrice)}</AppText>
               <AppText variant="caption" color="muted">Reportado en este lugar</AppText>
             </View>
             <TouchableOpacity 
@@ -142,7 +203,7 @@ export default function PriceHeatmapScreen() {
           <View style={styles.addressContainer}>
             <Ionicons name="checkmark-circle" size={15} color={Colors.success} />
             <Text style={styles.addressText} numberOfLines={2}>
-              {selectedPoint.address || 'Dirección no disponible'}
+              {selectedPoint.name +" ubicado en " + selectedPoint.address || 'Dirección no disponible'}
             </Text>
           </View>
         </View>
@@ -150,67 +211,3 @@ export default function PriceHeatmapScreen() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.background,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 16,
-    gap: 12,
-    backgroundColor: Colors.white,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.gray200,
-  },
-  backButton: {
-    padding: 4,
-  },
-  mapContainer: {
-    flex: 1,
-  },
-  map: {
-    ...StyleSheet.absoluteFillObject,
-  },
-  addressOverlay: {
-    position: 'absolute',
-    bottom: 30,
-    left: 20,
-    right: 20,
-    backgroundColor: Colors.white,
-    borderRadius: 12,
-    padding: 16,
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 10,
-  },
-  addressHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 12,
-    gap: 10,
-  },
-  addressTitle: {
-    flex: 1,
-  },
-  closeButton: {
-    padding: 4,
-  },
-  addressContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 12,
-    backgroundColor: Colors.gray50,
-    borderRadius: 8,
-    gap: 8,
-  },
-  addressText: {
-    fontSize: 13,
-    color: Colors.text,
-    flex: 1,
-  },
-});
