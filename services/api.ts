@@ -191,6 +191,10 @@ export const priceService = {
     
     const endpoint = API.endpoints.heatmapData(productId);
     const url = queryString ? `${endpoint}?${queryString}` : endpoint;
+
+    console.log(url);
+    
+
     const res = await fetchAuthenticated(url);
     return handleResponse(res);
   }
