@@ -1,50 +1,103 @@
-# Welcome to your Expo app 👋
+# PreQ Frontend
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+![Expo](https://img.shields.io/badge/Expo-54-000020?logo=expo)
+![React Native](https://img.shields.io/badge/React%20Native-0.81-61DAFB?logo=react)
+![React](https://img.shields.io/badge/React-19-61DAFB?logo=react)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript)
+![License](https://img.shields.io/badge/license-MIT-green)
 
-## Get started
+Aplicación mobile frontend de **PreQ**, desarrollada con **Expo**, **React Native** y **TypeScript**.
 
-1. Install dependencies
+PreQ ayuda a los usuarios a identificar productos, gestionar carritos y comparar precios.
 
-   ```bash
-   npm install
-   ```
+---
 
-2. Start the app
+## Funcionalidades
 
-   ```bash
-   npx expo start
-   ```
+- Autenticación de usuarios
+- Escaneo de códigos de barras
+- Detección de imagenes
+- Comparación de precios
+- Geolocalización automática
 
-In the output, you'll find options to open the app in a
+---
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## Stack Tecnológico
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+- **Expo**
+- **React Native**
+- **Expo Router**
+- **TypeScript**
+- **React Navigation**
+- **React Native Maps**
+- **Expo Location**
 
-## Get a fresh project
+---
 
-When you're ready, run:
+## Estructura del Proyecto
 
-```bash
-npm run reset-project
+```txt
+app/            # Rutas y pantallas
+components/     # Componentes reutilizables
+constants/      # Tema y constantes
+context/        # Estado global / contextos
+services/       # Comunicación con APIs
+types/          # Tipados compartidos
+utils/          # Utilidades/helpers
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Primeros Pasos
 
-## Learn more
+### Requisitos
 
-To learn more about developing your project with Expo, look at the following resources:
+- Node.js
+- npm
+- Xcode (iOS)
+- Android Studio (Android)
+- Expo CLI
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+### Instalación
 
-## Join the community
+Clonar el repositorio:
 
-Join our community of developers creating universal apps.
+```bash
+git clone <url-del-repositorio>
+cd preq-frontend
+```
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+Instalar dependencias:
+
+```bash
+npm install
+```
+
+Crear un archivo `.env`:
+
+```env
+EXPO_PUBLIC_API_URL=backend_api
+EXPO_PUBLIC_GOOGLE_MAPS_API_KEY=tu_google_maps_api_key
+```
+
+Ejecutar el proyecto:
+
+```bash
+npm start
+```
+
+Ejecutar en iOS:
+
+```bash
+npm run ios
+```
+
+Ejecutar en Android:
+
+```bash
+npm run android
+```
+
+---
+
+## Licencia
+
+Este proyecto se encuentra bajo la licencia MIT.
