@@ -16,6 +16,10 @@ export default {
       "infoPlist": {
         "NSCameraUsageDescription": "Necesitamos acceso a tu cámara para escanear productos",
         "NSMicrophoneUsageDescription": "Necesitamos acceso al micrófono para usar la cámara"
+      },
+      "config": {
+        "googleMapsApiKey":
+          process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY
       }
     },
     "android": {

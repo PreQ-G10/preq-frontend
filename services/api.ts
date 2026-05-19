@@ -167,11 +167,11 @@ export const locationService = {
 };
 
 export const priceService = {
-  async report(productId: number, locationId: number, price: number): Promise<void> {
+  async report(productId: number, locationId: number, price: number, userLatitude?: number, userLongitude?: number): Promise<void> {
     await fetchAuthenticated(API.endpoints.reportPrice, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ productId, locationId, price }),
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ productId, locationId, price, userLatitude, userLongitude }),
     });
   },
 

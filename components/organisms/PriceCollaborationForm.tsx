@@ -4,6 +4,7 @@ import { locationService, priceService } from '@/services/api';
 import { getDetectedLocation } from '@/services/maps';
 import { Location, LocationDetectionResponse } from '@/types';
 import { Ionicons } from '@expo/vector-icons';
+import * as ExpoLocation from 'expo-location';
 import React, { useState } from 'react';
 import { Modal, TouchableOpacity, View } from 'react-native';
 import { SearchBar } from '../molecules/SearchBar';
@@ -34,6 +35,12 @@ export function PriceCollaborationForm({ productId, onDone, onSkip }: PriceColla
 
   const [submitting, setSubmitting] = useState(false);
 
+  async function getLocation() {
+      const { status } = await ExpoLocation.requestForegroundPermissionsAsync();
+      if (status !== 'granted') return null;
+      return ExpoLocation.getCurrentPositionAsync({ accuracy: ExpoLocation.Accuracy.Balanced });
+    }
+
   async function handleLocationSearch() {
     if (!locationQuery.trim()) return;
     const data = await locationService.search(locationQuery);
@@ -42,17 +49,24 @@ export function PriceCollaborationForm({ productId, onDone, onSkip }: PriceColla
 
   async function handleSubmit() {
     if (!price.trim() || isNaN(Number(price))) {
-      setPriceError('Ingresá un precio válido');
-      return;
+        setPriceError('Ingresá un precio válido');
+        return;
     }
     if (!selectedLocation) return;
     setPriceError('');
     setSubmitting(true);
     try {
-      await priceService.report(productId, selectedLocation.id, Number(price));
-      onDone();
+        const pos = await getLocation();
+        await priceService.report(
+            productId,
+            selectedLocation.id,
+            Number(price),
+            pos?.coords.latitude,
+            pos?.coords.longitude,
+        );
+        onDone();
     } finally {
-      setSubmitting(false);
+        setSubmitting(false);
     }
   }
 
