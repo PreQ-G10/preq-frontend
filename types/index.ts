@@ -4,7 +4,9 @@ export type BarcodeDetectionStatus = 'FOUND' | 'CREATED' | 'COLLISION' | 'NOT_FO
 
 export type PriceSource = 'REPORTED' | 'NEARBY_FALLBACK' | 'GLOBAL_FALLBACK' | 'NO_DATA';
 
-export type LocationDetectionStatus = 'FOUND' | 'NOT_FOUND' ;
+export type LocationDetectionStatus = 'FOUND' | 'NOT_FOUND';
+
+export type ReportScore = 'VALID' | 'PENDING_REVIEW' | 'INVALID';
 
 export interface BarcodeDetectionResponse {
   status: BarcodeDetectionStatus;
@@ -57,6 +59,8 @@ export interface LocationProductPrice {
   locationId: number;
   price: number;
   reportedAt: string;
+  score: number;
+  reportScore: ReportScore;
 }
 
 export interface PriceSummaryResponse {
@@ -96,12 +100,12 @@ export interface RegisterRequest {
   email: string;
   password: string;
 }
- 
+
 export interface LoginRequest {
   email: string;
   password: string;
 }
- 
+
 export interface AuthResponse {
   accessToken: string;
   refreshToken: string;
@@ -153,11 +157,31 @@ export interface CartCompareRequest {
   userLongitude?: number;
 }
 
-export interface HeatmapPointResponse{
-  locationId: number,
-  name: String,
-  address: String,
-  latitude: number,
-  longitude: number,
-  avgPrice: number,
+export interface HeatmapPointResponse {
+  locationId: number;
+  name: string;
+  address: string;
+  latitude: number;
+  longitude: number;
+  avgPrice: number;
+}
+
+export interface PendingValidationResponse {
+  id: number;
+  price: number;
+  reportedAt: string;
+  locationId: number;
+  locationName: string;
+  locationAddress: string;
+  product: Product;
+}
+
+export interface ConfirmPriceResponse {
+  confirmedAt: string;
+}
+
+export interface DisputePriceRequest {
+  alternativePrice: number;
+  userLatitude?: number;
+  userLongitude?: number;
 }

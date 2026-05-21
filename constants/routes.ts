@@ -13,4 +13,5 @@ export const Routes = {
   profile: '/profile' as const,
   cart: '/cart' as const,
   cartCompare: '/cart/compare' as const,
+  validation: '/validation' as const,
 };
