@@ -1,13 +1,15 @@
 import { AppText, Card, Spinner } from '@/components/atoms';
+import { ValidationBanner } from '@/components/atoms/ValidationBanner';
 import { SearchBar } from '@/components/molecules';
 import { Routes } from '@/constants/routes';
 import { Colors, Spacing } from '@/constants/theme';
 import { useCart } from '@/context/cartContext';
-import { productService } from '@/services/api';
+import { priceService, productService } from '@/services/api';
 import { Product } from '@/types';
 import { Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router';
-import React, { useState } from 'react';
+import * as ExpoLocation from 'expo-location';
+import { router, useFocusEffect } from 'expo-router';
+import React, { useCallback, useState } from 'react';
 import { Pressable, SafeAreaView, Text, TouchableOpacity, View } from 'react-native';
 import 'react-native-reanimated';
 import { styles } from './index.styles';
@@ -23,7 +25,26 @@ export default function HomeScreen() {
   const [results, setResults] = useState<Product[]>([]);
   const [searching, setSearching] = useState(false);
   const [showResults, setShowResults] = useState(false);
+  const [pendingCount, setPendingCount] = useState(0);
   const { totalItems } = useCart();
+
+  useFocusEffect(
+    useCallback(() => {
+      loadPendingValidation();
+    }, [])
+  );
+
+  async function loadPendingValidation() {
+    try {
+      const { status } = await ExpoLocation.requestForegroundPermissionsAsync();
+      if (status !== 'granted') return;
+      const pos = await ExpoLocation.getCurrentPositionAsync({ accuracy: ExpoLocation.Accuracy.Balanced });
+      const data = await priceService.getPendingValidation(pos.coords.latitude, pos.coords.longitude);
+      setPendingCount(data.length);
+    } catch {
+      // silently ignore, banner just won't show
+    }
+  }
 
   async function handleSearch() {
     if (!query.trim()) return;
@@ -115,6 +136,7 @@ export default function HomeScreen() {
               </View>
             )}
           </View>
+
           <AppText variant="h3">¿Cómo funciona?</AppText>
           <Card elevated>
             <View style={styles.tipCard}>
@@ -130,6 +152,12 @@ export default function HomeScreen() {
               ))}
             </View>
           </Card>
+          {pendingCount > 0 && (
+            <ValidationBanner
+              count={pendingCount}
+              onPress={() => router.push(Routes.validation)}
+            />
+          )}
         </View>
       </Pressable>
 

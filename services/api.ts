@@ -4,11 +4,15 @@ import {
   BarcodeDetectionResponse,
   CartCompareRequest,
   CartCompareResponse,
+  ConfirmPriceResponse,
   CreateProductRequest,
+  DisputePriceRequest,
   HeatmapPointResponse,
   Location,
   LocationDetectionResponse,
+  LocationProductPrice,
   LoginRequest,
+  PendingValidationResponse,
   PriceSummaryResponse,
   Product,
   ProductDetectionResponse,
@@ -197,7 +201,30 @@ export const priceService = {
 
     const res = await fetchAuthenticated(url);
     return handleResponse(res);
-  }
+  },
+
+  async getPendingValidation(latitude: number, longitude: number): Promise<PendingValidationResponse[]> {
+    const res = await fetchAuthenticated(
+      `${API.endpoints.pendingValidation}?latitude=${latitude}&longitude=${longitude}`,
+    );
+    return handleResponse(res);
+  },
+
+  async confirmPrice(id: number): Promise<ConfirmPriceResponse> {
+    const res = await fetchAuthenticated(API.endpoints.confirmPrice(id), {
+      method: 'POST',
+    });
+    return handleResponse(res);
+  },
+
+  async disputePrice(id: number, request: DisputePriceRequest): Promise<LocationProductPrice> {
+    const res = await fetchAuthenticated(API.endpoints.disputePrice(id), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    });
+    return handleResponse(res);
+  },
 };
 
 export const authService = {

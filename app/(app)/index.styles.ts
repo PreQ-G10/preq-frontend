@@ -50,7 +50,7 @@ export const styles = StyleSheet.create({
   },
   footer: {
     paddingHorizontal: Spacing.lg,
-    paddingBottom: Spacing.xxl,
+    paddingBottom: Spacing.xs,
     paddingTop: Spacing.md,
     alignItems: 'center',
     gap: Spacing.md,
