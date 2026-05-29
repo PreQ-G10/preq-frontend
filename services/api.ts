@@ -138,6 +138,14 @@ export const productService = {
 
     return product;
   },
+
+  async contestProductField(productId: number, field: string, newValue: string | number): Promise<void> {
+    await fetchAuthenticated(`${API.endpoints.productById(productId)}/contest`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ field, newValue }),
+    });
+  },
 };
 
 export const locationService = {

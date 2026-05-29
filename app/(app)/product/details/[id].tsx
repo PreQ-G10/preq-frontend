@@ -8,10 +8,13 @@ import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
+  Alert,
   Dimensions,
   Image,
+  Modal,
   SafeAreaView,
   ScrollView,
+  TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
@@ -30,6 +33,12 @@ export default function ProductDetailScreen() {
   const [summary, setSummary] = useState<PriceSummaryResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeImage, setActiveImage] = useState(0);
+
+  // Contest state
+  const [contestModalVisible, setContestModalVisible] = useState(false);
+  const [selectedField, setSelectedField] = useState<{ key: string; label: string } | null>(null);
+  const [contestValue, setContestValue] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
 
   const inCart = items.some((i) => i.product.id === Number(id));
@@ -44,6 +53,35 @@ export default function ProductDetailScreen() {
       setSummary(sum);
     }).finally(() => setLoading(false));
   }, [id]);
+
+  const openContest = (field: string, label: string, initialValue: string | number) => {
+    setSelectedField({ key: field, label });
+    setContestValue(initialValue.toString());
+    setContestModalVisible(true);
+  };
+
+  const handleContestSubmit = async () => {
+    if (!selectedField || !contestValue.trim()) return;
+
+    const isNumeric = selectedField.key === 'QUANTITY';
+    const finalValue = isNumeric ? parseFloat(contestValue) : contestValue;
+
+    if (isNumeric && (isNaN(finalValue as number) || (finalValue as number) < 0)) {
+      Alert.alert('Error', 'Por favor ingresá un valor numérico válido.');
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      await productService.contestProductField(Number(id), selectedField.key, finalValue);
+      Alert.alert('¡Gracias!', 'Tu reporte ha sido enviado para revisión.');
+      setContestModalVisible(false);
+    } catch (error) {
+      Alert.alert('Error', 'No se pudo enviar el reporte. Intentalo de nuevo.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   if (loading) return <Spinner fullScreen message="Cargando producto..." />;
   if (!product) return (
@@ -103,9 +141,15 @@ export default function ProductDetailScreen() {
 
         {/* Product identity */}
         <View style={styles.productSection}>
-          <AppText variant="h2">{product.name}</AppText>
-          <AppText variant="body" color="secondary">{product.brand}</AppText>
-          <AppText variant="bodySmall" color="muted">{product.quantity} {product.quantityType}</AppText>
+          <TouchableOpacity onPress={() => openContest('NAME', 'Nombre', product.name)}>
+            <AppText variant="h2">{product.name}</AppText>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => openContest('BRAND', 'Marca', product.brand)}>
+            <AppText variant="body" color="secondary">{product.brand}</AppText>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => openContest('QUANTITY', 'Cantidad', product.quantity)}>
+            <AppText variant="bodySmall" color="muted">{product.quantity} {product.quantityType}</AppText>
+          </TouchableOpacity>
         </View>
 
         {/* Price snapshot */}
@@ -209,6 +253,44 @@ export default function ProductDetailScreen() {
         </View>
 
       </ScrollView>
+
+      <Modal visible={contestModalVisible} transparent animationType="fade">
+        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', padding: Spacing.lg }}>
+          <View style={{ backgroundColor: Colors.background, borderRadius: 12, padding: Spacing.lg }}>
+            <AppText variant="h3">Corregir {selectedField?.label}</AppText>
+            <AppText variant="bodySmall" color="secondary" style={{ marginVertical: Spacing.sm }}>
+              ¿Cuál es el valor correcto para este campo?
+            </AppText>
+            
+            <TextInput
+              style={{ 
+                borderWidth: 1, 
+                borderColor: Colors.gray300, 
+                borderRadius: 8, 
+                padding: Spacing.md, 
+                fontSize: 16,
+                marginVertical: Spacing.md,
+                color: Colors.text 
+              }}
+              value={contestValue}
+              onChangeText={setContestValue}
+              keyboardType={selectedField?.key === 'QUANTITY' ? 'numeric' : 'default'}
+              autoFocus
+            />
+
+            <View style={{ gap: Spacing.sm }}>
+              <Button 
+                label="Enviar corrección" 
+                onPress={handleContestSubmit} 
+                loading={isSubmitting}
+              />
+              <TouchableOpacity onPress={() => setContestModalVisible(false)} style={{ alignSelf: 'center', padding: Spacing.sm }}>
+                <AppText variant="label" color="muted">Cancelar</AppText>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
