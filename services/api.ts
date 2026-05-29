@@ -5,8 +5,10 @@ import {
   CartCompareRequest,
   CartCompareResponse,
   ConfirmPriceResponse,
+  ContestProductFieldRequest,
   CreateProductRequest,
   DisputePriceRequest,
+  FieldContestStatus,
   HeatmapPointResponse,
   Location,
   LocationDetectionResponse,
@@ -122,7 +124,7 @@ export const productService = {
   async create(request: CreateProductRequest, photoUri?: string): Promise<Product> {
     const res = await fetchAuthenticated(API.endpoints.createProduct, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...DEFAULT_HEADERS },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(request),
     });
     const product = await handleResponse<Product>(res);
@@ -139,12 +141,13 @@ export const productService = {
     return product;
   },
 
-  async contestProductField(productId: number, field: string, newValue: string | number): Promise<void> {
-    await fetchAuthenticated(`${API.endpoints.productById(productId)}/contest`, {
+  async contestProductField(productId: number, request: ContestProductFieldRequest): Promise<FieldContestStatus> {
+    const res = await fetchAuthenticated(API.endpoints.contestField(productId), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ field, newValue }),
+      body: JSON.stringify(request),
     });
+    return handleResponse(res);
   },
 };
 

@@ -1,5 +1,7 @@
 export type LocationType = 'SUPERMARKET' | 'STORE' | 'PHARMACY' | 'OTHER';
 
+export type FieldType = 'BRAND' |'NAME' |'QUANTITY'|'QUANTITY_TYPE';
+
 export type BarcodeDetectionStatus = 'FOUND' | 'CREATED' | 'COLLISION' | 'NOT_FOUND' | 'INCOMPLETE_DATA';
 
 export type PriceSource = 'REPORTED' | 'NEARBY_FALLBACK' | 'GLOBAL_FALLBACK' | 'NO_DATA';
@@ -7,6 +9,8 @@ export type PriceSource = 'REPORTED' | 'NEARBY_FALLBACK' | 'GLOBAL_FALLBACK' | '
 export type LocationDetectionStatus = 'FOUND' | 'NOT_FOUND';
 
 export type ReportScore = 'VALID' | 'PENDING_REVIEW' | 'INVALID';
+
+export type FieldContestStatus = 'ALREADY_SUBMITTED' | 'FIRST_SUBMIT';
 
 export interface BarcodeDetectionResponse {
   status: BarcodeDetectionStatus;
@@ -155,6 +159,11 @@ export interface CartCompareRequest {
   items: { productId: number; quantity: number }[];
   userLatitude?: number;
   userLongitude?: number;
+}
+
+export interface ContestProductFieldRequest {
+  fieldType: FieldType;
+  fieldValue: string;
 }
 
 export interface HeatmapPointResponse {
