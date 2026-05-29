@@ -3,7 +3,7 @@ import { Routes } from '@/constants/routes';
 import { Colors, Spacing } from '@/constants/theme';
 import { useCart } from '@/context/cartContext';
 import { priceService, productService } from '@/services/api';
-import { PriceSummaryResponse, Product } from '@/types';
+import { FieldType, PriceSummaryResponse, Product } from '@/types';
 import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
@@ -12,9 +12,11 @@ import {
   Dimensions,
   Image,
   Modal,
+  Platform,
   SafeAreaView,
   ScrollView,
   TextInput,
+  ToastAndroid,
   TouchableOpacity,
   View,
 } from 'react-native';
@@ -36,7 +38,7 @@ export default function ProductDetailScreen() {
 
   // Contest state
   const [contestModalVisible, setContestModalVisible] = useState(false);
-  const [selectedField, setSelectedField] = useState<{ key: string; label: string } | null>(null);
+  const [selectedField, setSelectedField] = useState<{ key: FieldType; label: string; initialValue: string } | null>(null);
   const [contestValue, setContestValue] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   
@@ -54,30 +56,73 @@ export default function ProductDetailScreen() {
     }).finally(() => setLoading(false));
   }, [id]);
 
-  const openContest = (field: string, label: string, initialValue: string | number) => {
-    setSelectedField({ key: field, label });
-    setContestValue(initialValue.toString());
+  const openContest = (field: FieldType, label: string, initialValue: string | number) => {
+    const val = initialValue.toString();
+    setSelectedField({ key: field, label, initialValue: val });
+    setContestValue(val);
     setContestModalVisible(true);
   };
 
   const handleContestSubmit = async () => {
-    if (!selectedField || !contestValue.trim()) return;
+    if (!selectedField) return;
 
-    const isNumeric = selectedField.key === 'QUANTITY';
-    const finalValue = isNumeric ? parseFloat(contestValue) : contestValue;
+    const trimmedValue = contestValue.trim();
 
-    if (isNumeric && (isNaN(finalValue as number) || (finalValue as number) < 0)) {
-      Alert.alert('Error', 'Por favor ingresá un valor numérico válido.');
+    if (!trimmedValue) {
+      if (Platform.OS === 'android') {
+        ToastAndroid.show('Por favor ingresá un valor.', ToastAndroid.SHORT);
+      } else {
+        Alert.alert('Error', 'Por favor ingresá un valor.');
+      }
+      return;
+    }
+
+    if (trimmedValue === selectedField.initialValue) {
+      if (Platform.OS === 'android') {
+        ToastAndroid.show('El valor es igual al actual.', ToastAndroid.SHORT);
+      } else {
+        Alert.alert('Aviso', 'El valor ingresado es igual al valor actual.');
+      }
+      return;
+    }
+
+    if (selectedField.key === 'QUANTITY' && (isNaN(parseFloat(trimmedValue)) || parseFloat(trimmedValue) < 0)) {
+      if (Platform.OS === 'android') {
+        ToastAndroid.show('Por favor ingresá un valor numérico válido.', ToastAndroid.SHORT);
+      } else {
+        Alert.alert('Error', 'Por favor ingresá un valor numérico válido.');
+      }
       return;
     }
 
     setIsSubmitting(true);
     try {
-      await productService.contestProductField(Number(id), selectedField.key, finalValue);
-      Alert.alert('¡Gracias!', 'Tu reporte ha sido enviado para revisión.');
+      const response = await productService.contestProductField(Number(id), {
+        fieldType: selectedField.key,
+        fieldValue: trimmedValue,
+      });
+      
+      const isAlreadySubmitted = response === 'ALREADY_SUBMITTED';
+      const message = isAlreadySubmitted 
+        ? 'Ya has enviado una corrección para este campo.' 
+        : '¡Gracias! Reporte enviado para revisión.';
+
+      if (Platform.OS === 'android') {
+        ToastAndroid.show(message, ToastAndroid.SHORT);
+      } else {
+        Alert.alert(
+          isAlreadySubmitted ? 'Aviso' : '¡Gracias!', 
+          message
+        );
+      }
       setContestModalVisible(false);
     } catch (error) {
-      Alert.alert('Error', 'No se pudo enviar el reporte. Intentalo de nuevo.');
+      console.log(error);
+      if (Platform.OS === 'android') {
+        ToastAndroid.show('Error al enviar el reporte.', ToastAndroid.SHORT);
+      } else {
+        Alert.alert('Error', 'No se pudo enviar el reporte. Intentalo de nuevo.');
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -141,15 +186,30 @@ export default function ProductDetailScreen() {
 
         {/* Product identity */}
         <View style={styles.productSection}>
-          <TouchableOpacity onPress={() => openContest('NAME', 'Nombre', product.name)}>
-            <AppText variant="h2">{product.name}</AppText>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => openContest('BRAND', 'Marca', product.brand)}>
-            <AppText variant="body" color="secondary">{product.brand}</AppText>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => openContest('QUANTITY', 'Cantidad', product.quantity)}>
-            <AppText variant="bodySmall" color="muted">{product.quantity} {product.quantityType}</AppText>
-          </TouchableOpacity>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+            <AppText variant="h2" style={{ flex: 1 }}>{product.name}</AppText>
+            <TouchableOpacity onPress={() => openContest('NAME', 'Nombre', product.name)} style={{ padding: Spacing.xs }}>
+              <Ionicons name="create-outline" size={20} color={Colors.primary} />
+            </TouchableOpacity>
+          </View>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 4 }}>
+            <AppText variant="body" color="secondary" style={{ flex: 1 }}>{product.brand}</AppText>
+            <TouchableOpacity onPress={() => openContest('BRAND', 'Marca', product.brand)} style={{ padding: Spacing.xs }}>
+              <Ionicons name="create-outline" size={18} color={Colors.primary} />
+            </TouchableOpacity>
+          </View>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 4 }}>
+            <AppText variant="bodySmall" color="muted" style={{ flex: 1 }}>{product.quantity}</AppText>
+            <TouchableOpacity onPress={() => openContest('QUANTITY', 'Cantidad', product.quantity)} style={{ padding: Spacing.xs }}>
+              <Ionicons name="create-outline" size={16} color={Colors.primary} />
+            </TouchableOpacity>
+          </View>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 2 }}>
+            <AppText variant="bodySmall" color="muted" style={{ flex: 1 }}>{product.quantityType}</AppText>
+            <TouchableOpacity onPress={() => openContest('QUANTITY_TYPE', 'Unidad', product.quantityType)} style={{ padding: Spacing.xs }}>
+              <Ionicons name="create-outline" size={16} color={Colors.primary} />
+            </TouchableOpacity>
+          </View>
         </View>
 
         {/* Price snapshot */}
