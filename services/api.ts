@@ -141,6 +141,15 @@ export const productService = {
     return product;
   },
 
+  async uploadImage(productId: number, imageUri: string): Promise<void> {
+    const form = new FormData();
+    form.append('file', { uri: imageUri, type: 'image/jpeg', name: 'photo.jpg' } as any);
+    await fetchAuthenticated(API.endpoints.uploadProductImage(productId), {
+      method: 'POST',
+      body: form,
+    }, 60000);
+  },
+
   async contestProductField(productId: number, request: ContestProductFieldRequest): Promise<FieldContestStatus> {
     const res = await fetchAuthenticated(API.endpoints.contestField(productId), {
       method: 'POST',

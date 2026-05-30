@@ -1,4 +1,5 @@
 import { AppText, Button, Card, Spinner } from '@/components/atoms';
+import { ProductCameraModal } from '@/components/organisms/ProductCameraModal';
 import { Routes } from '@/constants/routes';
 import { Colors, Spacing } from '@/constants/theme';
 import { useCart } from '@/context/cartContext';
@@ -41,6 +42,8 @@ export default function ProductDetailScreen() {
   const [selectedField, setSelectedField] = useState<{ key: FieldType; label: string; initialValue: string } | null>(null);
   const [contestValue, setContestValue] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const [cameraVisible, setCameraVisible] = useState(false);
   
 
   const inCart = items.some((i) => i.product.id === Number(id));
@@ -170,6 +173,12 @@ export default function ProductDetailScreen() {
                 <Image key={index} source={{ uri }} style={styles.productImage} resizeMode="cover" />
               ))}
             </ScrollView>
+            
+            {/* Add photo trigger */}
+            <TouchableOpacity style={styles.addPhotoButton} onPress={() => setCameraVisible(true)}>
+              <Ionicons name="camera" size={20} color={Colors.white} />
+            </TouchableOpacity>
+
             {product.images.length > 1 && (
               <View style={styles.dots}>
                 {product.images.map((_, index) => (
@@ -181,6 +190,9 @@ export default function ProductDetailScreen() {
         ) : (
           <View style={styles.imagePlaceholder}>
             <Ionicons name="cube-outline" size={48} color={Colors.gray300} />
+            <TouchableOpacity style={styles.addPhotoPlaceholder} onPress={() => setCameraVisible(true)}>
+              <AppText variant="label" color="primary">Añadir foto</AppText>
+            </TouchableOpacity>
           </View>
         )}
 
@@ -351,6 +363,21 @@ export default function ProductDetailScreen() {
           </View>
         </View>
       </Modal>
+
+      <ProductCameraModal 
+        visible={cameraVisible}
+        productId={Number(id)}
+        onClose={() => setCameraVisible(false)}
+        onSuccess={() => {
+          if (Platform.OS === 'android') {
+            ToastAndroid.show('Foto enviada correctamente', ToastAndroid.SHORT);
+          } else {
+            Alert.alert('Éxito', 'Foto enviada correctamente');
+          }
+          // Refresh product data to show new image (if backend processes it instantly)
+          productService.getById(Number(id)).then(setProduct);
+        }}
+      />
     </SafeAreaView>
   );
 }
