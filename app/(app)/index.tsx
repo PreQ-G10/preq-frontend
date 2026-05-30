@@ -9,7 +9,7 @@ import { Product } from '@/types';
 import { Ionicons } from '@expo/vector-icons';
 import * as ExpoLocation from 'expo-location';
 import { router, useFocusEffect } from 'expo-router';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Pressable, SafeAreaView, Text, TouchableOpacity, View } from 'react-native';
 import 'react-native-reanimated';
 import { styles } from './index.styles';
@@ -46,13 +46,30 @@ export default function HomeScreen() {
     }
   }
 
+  useEffect(() => {
+    const trimmed = query.trim();
+    if (trimmed.length < 3) {
+      setShowResults(false);
+      setResults([]);
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      handleSearch();
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [query]);
+
   async function handleSearch() {
-    if (!query.trim()) return;
+    const q = query.trim();
+    if (q.length < 3 || searching) return;
+
     setSearching(true);
+    setShowResults(true);
     try {
-      const data = await productService.search(query);
+      const data = await productService.search(q);
       setResults(data);
-      setShowResults(true);
     } finally {
       setSearching(false);
     }
@@ -98,7 +115,10 @@ export default function HomeScreen() {
             <SearchBar
               value={query}
               onChangeText={(text) => { setQuery(text); if (!text) setShowResults(false); }}
-              onSubmit={handleSearch}
+              onSubmit={() => {
+                setShowResults(false);
+                router.push({ pathname: Routes.search, params: { query } });
+              }}
               onClear={() => setShowResults(false)}
               hasResults={showResults && results.length > 0}
               placeholder="Buscá un producto..."
@@ -112,7 +132,7 @@ export default function HomeScreen() {
                     style={styles.dropdownItem}
                     onPress={() => {
                       setShowResults(false);
-                      router.push({ pathname: Routes.search, params: { query, productId: String(product.id) } });
+                      router.push(Routes.productDetails(product.id));
                     }}
                     activeOpacity={0.7}
                   >
