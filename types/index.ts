@@ -25,6 +25,8 @@ export interface Product {
   brand: string;
   quantity: number;
   quantityType: string;
+  minPrice?: number;
+  maxPrice?: number;
   barcode?: string;
   images: string[];
 }

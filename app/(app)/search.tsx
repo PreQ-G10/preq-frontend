@@ -7,8 +7,12 @@ import { Product } from '@/types';
 import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { Modal, SafeAreaView, ScrollView, TouchableOpacity, View } from 'react-native';
+import { Image, Modal, SafeAreaView, ScrollView, TouchableOpacity, View } from 'react-native';
 import { styles } from './search.styles';
+
+function formatPrice(value: number) {
+  return value.toLocaleString('es-AR', { style: 'currency', currency: 'ARS' });
+}
 
 export default function SearchScreen() {
   const { query: initialQuery } = useLocalSearchParams<{ query: string }>();
@@ -30,6 +34,7 @@ export default function SearchScreen() {
     try {
       const data = await productService.search(query);
       setResults(data);
+      console.log(results)
     } finally {
       setLoading(false);
     }
@@ -76,11 +81,32 @@ export default function SearchScreen() {
           <TouchableOpacity key={product.id} onPress={() => handleProductPress(product)} activeOpacity={0.7}>
             <Card elevated padded>
               <View style={styles.productRow}>
+                {product.images?.[0] ? (
+                  <Image source={{ uri: product.images[0] }} style={{ width: 48, height: 48, borderRadius: 6, marginRight: 12 }} />
+                ) : (
+                  <View style={{ width: 48, height: 48, borderRadius: 6, backgroundColor: Colors.gray100, alignItems: 'center', justifyContent: 'center', marginRight: 12 }}>
+                    <Ionicons name="cube-outline" size={24} color={Colors.gray400} />
+                  </View>
+                )}
                 <View style={styles.productInfo}>
                   <AppText variant="body">{product.name}</AppText>
                   <AppText variant="bodySmall" color="secondary">
                     {product.brand} · {product.quantity} {product.quantityType}
                   </AppText>
+                </View>
+                <View style={{ alignItems: 'flex-end', marginRight: 8 }}>
+                  {product.minPrice !== undefined && product.minPrice > 0 && (
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}>
+                      <Ionicons name="arrow-down" size={14} color={Colors.success} />
+                      <AppText variant="bodySmall" color="success" style={{ fontWeight: '600' }}>{formatPrice(product.minPrice)}</AppText>
+                    </View>
+                  )}
+                  {product.maxPrice !== undefined && product.maxPrice > 0 && (
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}>
+                      <Ionicons name="arrow-up" size={14} color={Colors.error} />
+                      <AppText variant="bodySmall" color="error" style={{ fontWeight: '600' }}>{formatPrice(product.maxPrice)}</AppText>
+                    </View>
+                  )}
                 </View>
                 <Ionicons name="chevron-forward" size={18} color={Colors.gray400} />
               </View>
