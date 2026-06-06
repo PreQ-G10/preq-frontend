@@ -60,7 +60,7 @@ export function ProductCameraModal({ visible, productId, onClose, onSuccess }: P
     setIsUploading(true);
     try {
       const compressed = await compressImage(capturedPhotoUri);
-      await productService.confirmImage(productId, compressed, 1);
+      await productService.uploadImage(productId, compressed);
       onSuccess();
       handleClose();
     } catch (error) {

@@ -78,6 +78,7 @@ export interface PriceSummaryResponse {
 }
 
 export interface TopLocationResponse {
+  id: number;
   name: string;
   address: string;
   avgPrice: number;

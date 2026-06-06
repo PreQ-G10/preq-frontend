@@ -36,7 +36,7 @@ export default function PriceDetailsScreen() {
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {summary && summary.avgPrice > 0 ? (
           <>
-            <PriceSummaryPanel summary={summary} />
+            <PriceSummaryPanel productId= {id} summary={summary} />
             <Button
               label="Ver mapa de calor"
               variant="secondary"
