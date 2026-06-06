@@ -14,6 +14,7 @@ import {
   LocationDetectionResponse,
   LocationProductPrice,
   LoginRequest,
+  NearbyOffer,
   PendingValidationResponse,
   PriceSummaryResponse,
   Product,
@@ -139,6 +140,11 @@ export const productService = {
     }
 
     return product;
+  },
+
+  async getNearbyOffers(): Promise<{ offers: NearbyOffer[] }> {
+    const response = await fetchAuthenticated(API.endpoints.nearbyOffers);
+    return handleResponse(response);
   },
 
   async uploadImage(productId: number, imageUri: string): Promise<void> {
