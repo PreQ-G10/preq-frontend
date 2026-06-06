@@ -210,6 +210,11 @@ export const priceService = {
     return handleResponse(res);
   },
 
+  async getLocationPrices(productId: number, locationId: number): Promise<LocationProductPrice[]> {
+    const res = await fetchAuthenticated(API.endpoints.locationPrices(productId, locationId));
+    return handleResponse(res);
+  },
+
   async getHeatMapData(productId: number, latitude?: number, longitude?: number, radius?: number): Promise<HeatmapPointResponse[]> {
     const params = new URLSearchParams();
     if (latitude !== undefined) params.append('latitude', latitude.toString());

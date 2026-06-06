@@ -1,10 +1,14 @@
-import { AppText } from '@/components/atoms';
+import { AppText, Spinner } from '@/components/atoms';
+import { Colors, Spacing } from '@/constants/theme';
+import { priceService } from '@/services/api';
 import { PriceSummaryResponse } from '@/types';
-import React from 'react';
-import { View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import React, { useState } from 'react';
+import { TouchableOpacity, View } from 'react-native';
 import { styles } from './PriceSummaryPanel.styles';
 
 interface PriceSummaryPanelProps {
+  productId: string;
   summary: PriceSummaryResponse;
 }
 
@@ -12,7 +16,37 @@ function formatPrice(value: number) {
   return value.toLocaleString('es-AR', { style: 'currency', currency: 'ARS' });
 }
 
-export function PriceSummaryPanel({ summary }: PriceSummaryPanelProps) {
+function formatDate(dateStr: string) {
+  return new Date(dateStr).toLocaleDateString('es-AR', { day: 'numeric', month: 'long' });
+}
+
+export function PriceSummaryPanel({ productId, summary }: PriceSummaryPanelProps) {
+  const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
+  const [locationReports, setLocationReports] = useState<Record<number, any[]>>({});
+  const [loadingReports, setLoadingReports] = useState<Record<number, boolean>>({});
+
+  const handleToggle = async (index: number, locationId: number) => {
+    const isExpanded = expandedIndex === index;
+    if (isExpanded) {
+      setExpandedIndex(null);
+      return;
+    }
+
+    setExpandedIndex(index);
+
+    if (!locationReports[locationId]) {
+      setLoadingReports(prev => ({ ...prev, [locationId]: true }));
+      try {
+        const data = await priceService.getLocationPrices(Number(productId), locationId);
+        setLocationReports(prev => ({ ...prev, [locationId]: data }));
+      } catch (error) {
+        console.error('Error fetching location history:', error);
+      } finally {
+        setLoadingReports(prev => ({ ...prev, [locationId]: false }));
+      }
+    }
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.weightedCard}>
@@ -41,15 +75,48 @@ export function PriceSummaryPanel({ summary }: PriceSummaryPanelProps) {
           <AppText variant="label" color="default" style={{ marginBottom: 8 }}>
             Mejores lugares
           </AppText>
-          {summary.topLocations.map((loc, index) => (
-            <View key={index} style={styles.locationRow}>
-              <View style={styles.locationInfo}>
-                <AppText variant="body">{loc.name}</AppText>
-                <AppText variant="bodySmall" color="secondary">{loc.address} · {loc.reportCount} reportes</AppText>
+          {summary.topLocations.map((loc, index) => {
+            const isExpanded = expandedIndex === index;
+            return (
+              <View key={index} style={{ marginBottom: Spacing.xs }}>
+                <TouchableOpacity 
+                  style={styles.locationRow} 
+                  onPress={() => handleToggle(index, loc.id)}
+                  activeOpacity={0.7}
+                >
+                  <View style={styles.locationInfo}>
+                    <AppText variant="body">{loc.name}</AppText>
+                    <AppText variant="bodySmall" color="secondary">{loc.address} · {loc.reportCount} reportes</AppText>
+                  </View>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: Spacing.xs }}>
+                    <AppText style={styles.locationPrice}>{formatPrice(loc.avgPrice)}</AppText>
+                    <Ionicons 
+                      name={isExpanded ? "chevron-up" : "chevron-down"} 
+                      size={16} 
+                      color={Colors.gray400} 
+                    />
+                  </View>
+                </TouchableOpacity>
+
+                {isExpanded && (
+                  loadingReports[loc.id] ? (
+                    <View style={{ paddingVertical: Spacing.sm }}>
+                      <Spinner size="small" />
+                    </View>
+                  ) : (
+                    <View style={{ paddingHorizontal: Spacing.md, paddingBottom: Spacing.sm, gap: 4 }}>
+                      {locationReports[loc.id]?.map((report: any, rIdx: number) => (
+                        <View key={rIdx} style={{ flexDirection: 'row', justifyContent: 'space-between', opacity: 0.8 }}>
+                          <AppText variant="bodySmall">{formatPrice(report.price)}</AppText>
+                          <AppText variant="caption" color="secondary">{formatDate(report.reportedAt)}</AppText>
+                        </View>
+                      ))}
+                    </View>
+                  )
+                )}
               </View>
-              <AppText style={styles.locationPrice}>{formatPrice(loc.avgPrice)}</AppText>
-            </View>
-          ))}
+            );
+          })}
         </View>
       )}
     </View>
