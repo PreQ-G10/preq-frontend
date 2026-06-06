@@ -26,5 +26,6 @@ export const API = {
     productById: (id: number) => `${BASE_URL}/api/products/${id}`,
     cartCompare: `${BASE_URL}/api/cart/compare`,
     contestField: (id: number) => `${BASE_URL}/api/products/${id}/contestField`,
+    nearbyOffers: `${BASE_URL}/api/products/offers-nearby`,
   },
 };

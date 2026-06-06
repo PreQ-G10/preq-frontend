@@ -1,6 +1,6 @@
 export type LocationType = 'SUPERMARKET' | 'STORE' | 'PHARMACY' | 'OTHER';
 
-export type FieldType = 'BRAND' |'NAME' |'QUANTITY'|'QUANTITY_TYPE';
+export type FieldType = 'BRAND' | 'NAME' | 'QUANTITY' | 'QUANTITY_TYPE' | 'BARCODE';
 
 export type BarcodeDetectionStatus = 'FOUND' | 'CREATED' | 'COLLISION' | 'NOT_FOUND' | 'INCOMPLETE_DATA';
 
@@ -195,4 +195,12 @@ export interface DisputePriceRequest {
   alternativePrice: number;
   userLatitude?: number;
   userLongitude?: number;
+}
+
+export interface NearbyOffer {
+  product: Product;
+  location: Location;
+  distanceMeters: number;
+  price: number;
+  averagePrice: number;
 }

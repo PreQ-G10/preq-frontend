@@ -180,7 +180,6 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 10,
-    // Optional: add a slight shadow to help the icon stand out against light images
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
@@ -196,5 +195,50 @@ export const styles = StyleSheet.create({
     borderColor: Colors.primary,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  nameRow: {
+    flexDirection: 'row' as const,
+    alignItems: 'flex-start' as const,
+    gap: Spacing.sm,
+  },
+  productName: {
+    flex: 1,
+  },
+ 
+  // Barcode pill badge
+  barcodeBadge: {
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    gap: 4,
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: 4,
+    borderRadius: 6,
+    backgroundColor: Colors.gray300 + '30',
+    borderWidth: 1,
+    borderColor: Colors.gray300,
+    flexShrink: 0,
+    marginTop: 3,
+  },
+  barcodeText: {
+    fontVariant: ['tabular-nums'] as any,
+  },
+ 
+  brandText: {
+    marginTop: 4,
+  },
+  quantityText: {
+    marginTop: 4,
+  },
+ 
+  contestTrigger: {
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    gap: 6,
+    marginTop: Spacing.sm,
+    alignSelf: 'flex-start' as const,
+  },
+ 
+  emptyPriceCaption: {
+    textAlign: 'center' as const,
   },
 });

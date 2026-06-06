@@ -25,8 +25,11 @@ export const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
+  },
+  contentContainer: {
     paddingHorizontal: Spacing.lg,
     paddingTop: Spacing.xl,
+    paddingBottom: 100,
     gap: Spacing.xl,
   },
   tipCard: {
