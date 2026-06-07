@@ -17,14 +17,10 @@ export function SearchBar({ value, onChangeText, placeholder = 'Buscar producto.
   const [focused, setFocused] = useState(false);
 
   return (
-    <View style={[
-        styles.container,
-        focused && styles.focused,
-        hasResults && styles.hasResults,
-      ]}
-    >
+    <View style={[styles.container, focused && styles.focused, hasResults && styles.hasResults]}>
       <Ionicons name="search-outline" size={20} color={focused ? Colors.primary : Colors.gray400} />
       <TextInput
+        testID="search-bar-input"
         style={styles.input}
         value={value}
         onChangeText={onChangeText}
@@ -36,7 +32,7 @@ export function SearchBar({ value, onChangeText, placeholder = 'Buscar producto.
         returnKeyType="search"
       />
       {value.length > 0 && (
-        <TouchableOpacity style={styles.clearButton} onPress={() => { onChangeText(''); onClear?.(); }}>
+        <TouchableOpacity testID="search-bar-clear" style={styles.clearButton} onPress={() => { onChangeText(''); onClear?.(); }}>
           <Ionicons name="close-circle" size={18} color={Colors.gray400} />
         </TouchableOpacity>
       )}

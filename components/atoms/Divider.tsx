@@ -8,10 +8,10 @@ interface DividerProps {
 }
 
 export function Divider({ label }: DividerProps) {
-  if (!label) return <View style={styles.line} />;
+  if (!label) return <View testID="divider-line" style={styles.line} />;
 
   return (
-    <View style={styles.withLabel}>
+    <View testID="divider-with-label" style={styles.withLabel}>
       <View style={styles.flex} />
       <AppText variant="caption" color="muted" style={styles.text}>{label}</AppText>
       <View style={styles.flex} />
