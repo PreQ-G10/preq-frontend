@@ -1,5 +1,4 @@
 const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'localhost:8080';
-const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'localhost:8080';
 
 export const API = {
   baseUrl: BASE_URL,

@@ -3,7 +3,7 @@ import { ConfidenceBanner, ProductCard } from '@/components/molecules';
 import { Colors } from '@/constants/theme';
 import { ProductDetectionResponse } from '@/types';
 import { Ionicons } from '@expo/vector-icons';
-import { default as React, default as React } from 'react';
+import { default as React } from 'react';
 import { View } from 'react-native';
 import { styles } from './ProductDetectionResult.styles';
 
@@ -11,9 +11,6 @@ interface ProductDetectionResultProps {
   results: ProductDetectionResponse[];
   onConfirm: (product: ProductDetectionResponse) => void;
   onReject: () => void;
-  confirmLabel?: string;
-  rejectLabel?: string;
-  submitting?: boolean;
   confirmLabel?: string;
   rejectLabel?: string;
   submitting?: boolean;
@@ -48,7 +45,6 @@ export function ProductDetectionResult({ results, onConfirm, onReject, confirmLa
           <View style={styles.actions}>
             <Button
               label={rejectLabel ?? 'No es este'}
-              label={rejectLabel ?? 'No es este'}
               variant="secondary"
               style={styles.actionButton}
               onPress={onReject}
@@ -58,7 +54,6 @@ export function ProductDetectionResult({ results, onConfirm, onReject, confirmLa
               label={confirmLabel ?? 'Sí, confirmar'}
               variant="primary"
               style={styles.actionButton}
-              loading={submitting}
               loading={submitting}
               onPress={() => onConfirm(top)}
             />
