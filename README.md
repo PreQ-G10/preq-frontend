@@ -1,6 +1,7 @@
 # PreQ Frontend
 
 ![Expo](https://img.shields.io/badge/Expo-54-000020?logo=expo)
+[![codecov](https://codecov.io/github/PreQ-G10/preq-frontend/branch/main/graph/badge.svg?token=LLT6CE7RCZ)](https://codecov.io/github/PreQ-G10/preq-frontend)
 ![React Native](https://img.shields.io/badge/React%20Native-0.81-61DAFB?logo=react)
 ![React](https://img.shields.io/badge/React-19-61DAFB?logo=react)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript)

@@ -75,7 +75,7 @@ export async function fetchAuthenticated(url: string, options: RequestInit = {},
   return res;
 }
 
-async function handleResponse<T>(res: Response): Promise<T> {
+export async function handleResponse<T>(res: Response): Promise<T> {
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json();
 }

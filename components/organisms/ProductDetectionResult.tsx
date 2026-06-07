@@ -21,7 +21,7 @@ export function ProductDetectionResult({ results, onConfirm, onReject, confirmLa
 
   if (!top) {
     return (
-      <View style={styles.noResultContainer}>
+      <View testID="detection-empty-state" style={styles.noResultContainer}>
         <View style={styles.noResultIcon}>
           <Ionicons name="search-outline" size={32} color={Colors.gray400} />
         </View>
@@ -35,7 +35,7 @@ export function ProductDetectionResult({ results, onConfirm, onReject, confirmLa
   }
 
   return (
-    <View style={styles.container}>
+    <View testID="detection-result" style={styles.container}>
       <AppText variant="h3">¿Es este el producto?</AppText>
       <Card elevated padded>
         <View style={styles.cardContent}>
@@ -50,6 +50,7 @@ export function ProductDetectionResult({ results, onConfirm, onReject, confirmLa
               onPress={onReject}
             />
             <Button
+              testID="detection-confirm-button"
               label={confirmLabel ?? 'Sí, confirmar'}
               variant="primary"
               style={styles.actionButton}

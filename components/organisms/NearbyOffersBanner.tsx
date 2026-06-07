@@ -34,7 +34,7 @@ export function NearbyOffersBanner({ offers, onOfferPress, onDismiss }: NearbyOf
   }
 
   return (
-    <Animated.View style={[styles.container, { opacity }]}>
+    <Animated.View testID="nearby-offers-banner" style={[styles.container, { opacity }]}>
       <View style={styles.header}>
         <View style={styles.headerLeft}>
           <View style={styles.iconWrapper}>
@@ -44,13 +44,14 @@ export function NearbyOffersBanner({ offers, onOfferPress, onDismiss }: NearbyOf
             <AppText variant="h3" style={styles.headerTitle}>
               Precios bajos cerca tuyo
             </AppText>
-            <AppText variant="caption" color="secondary" style={styles.headerSubtitle}>
+            <AppText testID="nearby-offers-subtitle" variant="caption" color="secondary" style={styles.headerSubtitle}>
               {offers.length} {offers.length === 1 ? 'producto' : 'productos'} por debajo del promedio
             </AppText>
           </View>
         </View>
         {onDismiss && (
           <TouchableOpacity
+            testID="nearby-offers-dismiss"
             style={styles.dismissButton}
             onPress={handleDismiss}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
@@ -77,6 +78,7 @@ export function NearbyOffersBanner({ offers, onOfferPress, onDismiss }: NearbyOf
           return (
             <TouchableOpacity
               key={`${offer.product.id}-${offer.location.id}`}
+              testID={`offer-card-${offer.product.id}`}
               style={styles.card}
               onPress={() => onOfferPress(offer)}
               activeOpacity={0.75}
@@ -88,18 +90,15 @@ export function NearbyOffersBanner({ offers, onOfferPress, onDismiss }: NearbyOf
                   </AppText>
                 </View>
               )}
-
               <AppText variant="bodySmall" style={styles.productName} numberOfLines={2}>
                 {offer.product.name}
               </AppText>
-
               <View style={styles.storeRow}>
                 <Ionicons name="storefront-outline" size={11} color={Colors.textSecondary} />
                 <AppText variant="caption" color="secondary" style={styles.storeName} numberOfLines={1}>
                   {offer.location.name}
                 </AppText>
               </View>
-
               <View style={styles.priceRow}>
                 <AppText variant="h3" color="primary" style={styles.price}>
                   {formatPrice(offer.price)}
