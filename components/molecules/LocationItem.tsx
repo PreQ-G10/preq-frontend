@@ -1,8 +1,8 @@
-import React from 'react';
-import { Text, TouchableOpacity, View } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '@/constants/theme';
 import { Location } from '@/types';
+import { Ionicons } from '@expo/vector-icons';
+import React from 'react';
+import { Text, TouchableOpacity, View } from 'react-native';
 import { styles } from './LocationItem.styles';
 
 const locationIcons: Record<Location['type'], keyof typeof Ionicons.glyphMap> = {
@@ -20,13 +20,9 @@ interface LocationItemProps {
 
 export function LocationItem({ location, selected = false, onPress }: LocationItemProps) {
   return (
-    <TouchableOpacity style={[styles.container, selected && styles.selected]} onPress={onPress} activeOpacity={0.7}>
+    <TouchableOpacity testID="location-item" style={[styles.container, selected && styles.selected]} onPress={onPress} activeOpacity={0.7}>
       <View style={[styles.iconContainer, selected && styles.iconContainerSelected]}>
-        <Ionicons
-          name={locationIcons[location.type]}
-          size={20}
-          color={selected ? Colors.primary : Colors.gray500}
-        />
+        <Ionicons name={locationIcons[location.type]} size={20} color={selected ? Colors.primary : Colors.gray500} />
       </View>
       <View style={styles.info}>
         <Text style={[styles.name, selected && styles.nameSelected]}>{location.name}</Text>

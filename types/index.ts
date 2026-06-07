@@ -1,10 +1,16 @@
 export type LocationType = 'SUPERMARKET' | 'STORE' | 'PHARMACY' | 'OTHER';
 
+export type FieldType = 'BRAND' | 'NAME' | 'QUANTITY' | 'QUANTITY_TYPE' | 'BARCODE';
+
 export type BarcodeDetectionStatus = 'FOUND' | 'CREATED' | 'COLLISION' | 'NOT_FOUND' | 'INCOMPLETE_DATA';
 
 export type PriceSource = 'REPORTED' | 'NEARBY_FALLBACK' | 'GLOBAL_FALLBACK' | 'NO_DATA';
 
-export type LocationDetectionStatus = 'FOUND' | 'NOT_FOUND' ;
+export type LocationDetectionStatus = 'FOUND' | 'NOT_FOUND';
+
+export type ReportScore = 'VALID' | 'PENDING_REVIEW' | 'INVALID';
+
+export type FieldContestStatus = 'ALREADY_SUBMITTED' | 'FIRST_SUBMIT';
 
 export interface BarcodeDetectionResponse {
   status: BarcodeDetectionStatus;
@@ -19,6 +25,8 @@ export interface Product {
   brand: string;
   quantity: number;
   quantityType: string;
+  minPrice?: number;
+  maxPrice?: number;
   barcode?: string;
   images: string[];
 }
@@ -57,6 +65,8 @@ export interface LocationProductPrice {
   locationId: number;
   price: number;
   reportedAt: string;
+  score: number;
+  reportScore: ReportScore;
 }
 
 export interface PriceSummaryResponse {
@@ -68,6 +78,7 @@ export interface PriceSummaryResponse {
 }
 
 export interface TopLocationResponse {
+  id: number;
   name: string;
   address: string;
   avgPrice: number;
@@ -96,12 +107,10 @@ export interface RegisterRequest {
   email: string;
   password: string;
 }
- 
 export interface LoginRequest {
   email: string;
   password: string;
 }
- 
 export interface AuthResponse {
   accessToken: string;
   refreshToken: string;
@@ -153,11 +162,44 @@ export interface CartCompareRequest {
   userLongitude?: number;
 }
 
-export interface HeatmapPointResponse{
-  locationId: number,
-  name: String,
-  address: String,
-  latitude: number,
-  longitude: number,
-  avgPrice: number,
+export interface ContestProductFieldRequest {
+  fieldType: FieldType;
+  fieldValue: string;
+}
+
+export interface HeatmapPointResponse {
+  locationId: number;
+  name: string;
+  address: string;
+  latitude: number;
+  longitude: number;
+  avgPrice: number;
+}
+
+export interface PendingValidationResponse {
+  id: number;
+  price: number;
+  reportedAt: string;
+  locationId: number;
+  locationName: string;
+  locationAddress: string;
+  product: Product;
+}
+
+export interface ConfirmPriceResponse {
+  confirmedAt: string;
+}
+
+export interface DisputePriceRequest {
+  alternativePrice: number;
+  userLatitude?: number;
+  userLongitude?: number;
+}
+
+export interface NearbyOffer {
+  product: Product;
+  location: Location;
+  distanceMeters: number;
+  price: number;
+  averagePrice: number;
 }

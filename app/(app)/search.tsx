@@ -1,5 +1,5 @@
-import { AppText, Button, Card, Spinner } from '@/components/atoms';
-import { SearchBar } from '@/components/molecules';
+import { AppText, Button, Spinner } from '@/components/atoms';
+import { SearchBar, SearchResultCard } from '@/components/molecules';
 import { Routes } from '@/constants/routes';
 import { Colors } from '@/constants/theme';
 import { productService } from '@/services/api';
@@ -30,6 +30,7 @@ export default function SearchScreen() {
     try {
       const data = await productService.search(query);
       setResults(data);
+      console.log(results)
     } finally {
       setLoading(false);
     }
@@ -73,19 +74,11 @@ export default function SearchScreen() {
         )}
 
         {!loading && results.map(product => (
-          <TouchableOpacity key={product.id} onPress={() => handleProductPress(product)} activeOpacity={0.7}>
-            <Card elevated padded>
-              <View style={styles.productRow}>
-                <View style={styles.productInfo}>
-                  <AppText variant="body">{product.name}</AppText>
-                  <AppText variant="bodySmall" color="secondary">
-                    {product.brand} · {product.quantity} {product.quantityType}
-                  </AppText>
-                </View>
-                <Ionicons name="chevron-forward" size={18} color={Colors.gray400} />
-              </View>
-            </Card>
-          </TouchableOpacity>
+          <SearchResultCard
+            key={product.id}
+            product={product}
+            onPress={() => handleProductPress(product)}
+          />
         ))}
       </ScrollView>
 

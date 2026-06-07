@@ -25,8 +25,11 @@ export const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
+  },
+  contentContainer: {
     paddingHorizontal: Spacing.lg,
     paddingTop: Spacing.xl,
+    paddingBottom: 100,
     gap: Spacing.xl,
   },
   tipCard: {
@@ -50,7 +53,7 @@ export const styles = StyleSheet.create({
   },
   footer: {
     paddingHorizontal: Spacing.lg,
-    paddingBottom: Spacing.xxl,
+    paddingBottom: Spacing.xs,
     paddingTop: Spacing.md,
     alignItems: 'center',
     gap: Spacing.md,

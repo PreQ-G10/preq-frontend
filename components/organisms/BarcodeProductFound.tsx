@@ -34,8 +34,8 @@ export function BarcodeProductFound({ product, onCollaborate, onViewPrices }: Ba
           </View>
         </View>
       </Card>
-      <Button label="Colaborar con el precio" variant="primary" fullWidth onPress={onCollaborate} />
-      <Button label="Ver precios" variant="secondary" fullWidth onPress={onViewPrices} />
+      <Button testID="barcode-collaborate-button" label="Colaborar con el precio" variant="primary" fullWidth onPress={onCollaborate} />
+      <Button testID="barcode-view-prices-button" label="Ver precios" variant="secondary" fullWidth onPress={onViewPrices} />
     </View>
   );
 }

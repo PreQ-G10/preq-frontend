@@ -1,6 +1,6 @@
+import { Colors } from '@/constants/theme';
 import React, { useState } from 'react';
 import { Text, TextInput, View } from 'react-native';
-import { Colors } from '@/constants/theme';
 import { styles } from './PriceInput.styles';
 
 interface PriceInputProps {
@@ -20,6 +20,7 @@ export function PriceInput({ value, onChangeText, label = 'Precio', currency = '
       <View style={[styles.inputRow, focused && styles.inputRowFocused]}>
         <Text style={styles.currency}>{currency}</Text>
         <TextInput
+          testID="price-input-field"
           style={styles.input}
           value={value}
           onChangeText={onChangeText}
@@ -30,7 +31,7 @@ export function PriceInput({ value, onChangeText, label = 'Precio', currency = '
           onBlur={() => setFocused(false)}
         />
       </View>
-      {error && <Text style={styles.error}>{error}</Text>}
+      {error && <Text testID="price-input-error" style={styles.error}>{error}</Text>}
     </View>
   );
 }

@@ -9,7 +9,12 @@ interface ChipProps extends TouchableOpacityProps {
 
 export function Chip({ label, selected = false, style, ...props }: ChipProps) {
   return (
-    <TouchableOpacity style={[styles.base, selected ? styles.selected : styles.unselected, style]} activeOpacity={0.8} {...props}>
+    <TouchableOpacity
+      testID="chip"
+      style={[styles.base, selected ? styles.selected : styles.unselected, style]}
+      activeOpacity={0.8}
+      {...props}
+    >
       <Text style={[styles.label, selected ? styles.labelSelected : styles.labelUnselected]}>{label}</Text>
     </TouchableOpacity>
   );

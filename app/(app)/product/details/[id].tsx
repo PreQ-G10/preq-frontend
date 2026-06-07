@@ -1,6 +1,8 @@
 import { AppText, Button, Card, Spinner } from '@/components/atoms';
+import { ContestProductModal } from '@/components/organisms/ContestProductModal';
+import { ProductCameraModal } from '@/components/organisms/ProductCameraModal';
 import { Routes } from '@/constants/routes';
-import { Colors, Spacing } from '@/constants/theme';
+import { Colors } from '@/constants/theme';
 import { useCart } from '@/context/cartContext';
 import { priceService, productService } from '@/services/api';
 import { PriceSummaryResponse, Product } from '@/types';
@@ -8,8 +10,10 @@ import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
+  Alert,
   Dimensions,
   Image,
+  Platform,
   SafeAreaView,
   ScrollView,
   TouchableOpacity,
@@ -30,7 +34,8 @@ export default function ProductDetailScreen() {
   const [summary, setSummary] = useState<PriceSummaryResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeImage, setActiveImage] = useState(0);
-  
+  const [contestModalVisible, setContestModalVisible] = useState(false);
+  const [cameraVisible, setCameraVisible] = useState(false);
 
   const inCart = items.some((i) => i.product.id === Number(id));
   const cartQuantity = items.find((i) => i.product.id === Number(id))?.quantity ?? 0;
@@ -39,10 +44,12 @@ export default function ProductDetailScreen() {
     Promise.all([
       productService.getById(Number(id)),
       priceService.getSummary(Number(id)).catch(() => null),
-    ]).then(([prod, sum]) => {
-      setProduct(prod);
-      setSummary(sum);
-    }).finally(() => setLoading(false));
+    ])
+      .then(([prod, sum]) => {
+        setProduct(prod);
+        setSummary(sum);
+      })
+      .finally(() => setLoading(false));
   }, [id]);
 
   if (loading) return <Spinner fullScreen message="Cargando producto..." />;
@@ -59,6 +66,8 @@ export default function ProductDetailScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
+
+      {/* ── Top navigation bar ── */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.headerButton}>
           <Ionicons name="arrow-back" size={22} color={Colors.white} />
@@ -72,7 +81,7 @@ export default function ProductDetailScreen() {
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
 
-        {/* Image gallery */}
+        {/* ── Image gallery ── */}
         {hasImages ? (
           <View style={styles.galleryContainer}>
             <ScrollView
@@ -80,13 +89,25 @@ export default function ProductDetailScreen() {
               pagingEnabled
               showsHorizontalScrollIndicator={false}
               onMomentumScrollEnd={(e) => {
-                setActiveImage(Math.round(e.nativeEvent.contentOffset.x / (width - Spacing.lg * 2)));
+                setActiveImage(
+                  Math.round(e.nativeEvent.contentOffset.x / width)
+                );
               }}
             >
               {product.images.map((uri, index) => (
-                <Image key={index} source={{ uri }} style={styles.productImage} resizeMode="cover" />
+                <Image
+                  key={index}
+                  source={{ uri }}
+                  style={styles.productImage}
+                  resizeMode="cover"
+                />
               ))}
             </ScrollView>
+
+            <TouchableOpacity style={styles.addPhotoButton} onPress={() => setCameraVisible(true)}>
+              <Ionicons name="camera" size={20} color={Colors.white} />
+            </TouchableOpacity>
+
             {product.images.length > 1 && (
               <View style={styles.dots}>
                 {product.images.map((_, index) => (
@@ -98,17 +119,42 @@ export default function ProductDetailScreen() {
         ) : (
           <View style={styles.imagePlaceholder}>
             <Ionicons name="cube-outline" size={48} color={Colors.gray300} />
+            <TouchableOpacity style={styles.addPhotoPlaceholder} onPress={() => setCameraVisible(true)}>
+              <AppText variant="label" color="primary">Añadir foto</AppText>
+            </TouchableOpacity>
           </View>
         )}
 
-        {/* Product identity */}
+        {/* ── Product identity ── */}
         <View style={styles.productSection}>
-          <AppText variant="h2">{product.name}</AppText>
-          <AppText variant="body" color="secondary">{product.brand}</AppText>
-          <AppText variant="bodySmall" color="muted">{product.quantity} {product.quantityType}</AppText>
+          {/* Name + barcode badge */}
+          <View style={styles.nameRow}>
+            <AppText variant="h2" style={styles.productName}>{product.name}</AppText>
+            {product.barcode && (
+              <View style={styles.barcodeBadge}>
+                <Ionicons name="barcode-outline" size={13} color={Colors.text} />
+                <AppText variant="caption" color="secondary" style={styles.barcodeText}>
+                  {product.barcode}
+                </AppText>
+              </View>
+            )}
+          </View>
+
+          <AppText variant="body" color="secondary" style={styles.brandText}>{product.brand}</AppText>
+          <AppText variant="bodySmall" color="muted" style={styles.quantityText}>
+            {product.quantity}{product.quantityType ? ` ${product.quantityType}` : ''}
+          </AppText>
+
+          <TouchableOpacity
+            onPress={() => setContestModalVisible(true)}
+            style={styles.contestTrigger}
+          >
+            <Ionicons name="alert-circle-outline" size={15} color={Colors.primary} />
+            <AppText variant="label" color="primary">¿Esta información no es correcta o falta información?</AppText>
+          </TouchableOpacity>
         </View>
 
-        {/* Price snapshot */}
+        {/* ── Price snapshot ── */}
         {summary && summary.weightedPrice > 0 ? (
           <Card elevated padded>
             <View style={styles.priceSnapshot}>
@@ -137,14 +183,14 @@ export default function ProductDetailScreen() {
             <View style={styles.emptyPrice}>
               <Ionicons name="pricetag-outline" size={32} color={Colors.gray300} />
               <AppText variant="body" color="secondary">Sin precios todavía</AppText>
-              <AppText variant="caption" color="muted" style={{ textAlign: 'center' }}>
+              <AppText variant="caption" color="muted" style={styles.emptyPriceCaption}>
                 Sé el primero en colaborar con el precio
               </AppText>
             </View>
           </Card>
         )}
 
-        {/* Cart */}
+        {/* ── Cart ── */}
         <Card elevated padded>
           <View style={styles.cartSection}>
             <View style={styles.cartInfo}>
@@ -192,7 +238,7 @@ export default function ProductDetailScreen() {
           </View>
         </Card>
 
-        {/* Actions */}
+        {/* ── Actions ── */}
         <View style={styles.actions}>
           {summary && summary.avgPrice > 0 && (
             <Button
@@ -209,6 +255,29 @@ export default function ProductDetailScreen() {
         </View>
 
       </ScrollView>
+
+      {/* ── Modals ── */}
+      <ContestProductModal
+        visible={contestModalVisible}
+        product={product}
+        onClose={() => setContestModalVisible(false)}
+        onSuccess={() => productService.getById(Number(id)).then(setProduct)}
+      />
+
+      <ProductCameraModal
+        visible={cameraVisible}
+        productId={Number(id)}
+        onClose={() => setCameraVisible(false)}
+        onSuccess={() => {
+          if (Platform.OS === 'android') {
+            Alert.alert('Éxito', 'Foto enviada correctamente');
+          } else {
+            Alert.alert('Éxito', 'Foto enviada correctamente');
+          }
+          productService.getById(Number(id)).then(setProduct);
+        }}
+      />
+
     </SafeAreaView>
   );
 }

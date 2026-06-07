@@ -4,11 +4,18 @@ import {
   BarcodeDetectionResponse,
   CartCompareRequest,
   CartCompareResponse,
+  ConfirmPriceResponse,
+  ContestProductFieldRequest,
   CreateProductRequest,
+  DisputePriceRequest,
+  FieldContestStatus,
   HeatmapPointResponse,
   Location,
   LocationDetectionResponse,
+  LocationProductPrice,
   LoginRequest,
+  NearbyOffer,
+  PendingValidationResponse,
   PriceSummaryResponse,
   Product,
   ProductDetectionResponse,
@@ -68,7 +75,7 @@ export async function fetchAuthenticated(url: string, options: RequestInit = {},
   return res;
 }
 
-async function handleResponse<T>(res: Response): Promise<T> {
+export async function handleResponse<T>(res: Response): Promise<T> {
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json();
 }
@@ -118,7 +125,7 @@ export const productService = {
   async create(request: CreateProductRequest, photoUri?: string): Promise<Product> {
     const res = await fetchAuthenticated(API.endpoints.createProduct, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...DEFAULT_HEADERS },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(request),
     });
     const product = await handleResponse<Product>(res);
@@ -133,6 +140,29 @@ export const productService = {
     }
 
     return product;
+  },
+
+  async getNearbyOffers(): Promise<{ offers: NearbyOffer[] }> {
+    const response = await fetchAuthenticated(API.endpoints.nearbyOffers);
+    return handleResponse(response);
+  },
+
+  async uploadImage(productId: number, imageUri: string): Promise<void> {
+    const form = new FormData();
+    form.append('file', { uri: imageUri, type: 'image/jpeg', name: 'photo.jpg' } as any);
+    await fetchAuthenticated(API.endpoints.uploadProductImage(productId), {
+      method: 'POST',
+      body: form,
+    }, 60000);
+  },
+
+  async contestProductField(productId: number, request: ContestProductFieldRequest): Promise<FieldContestStatus> {
+    const res = await fetchAuthenticated(API.endpoints.contestField(productId), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    });
+    return handleResponse(res);
   },
 };
 
@@ -167,16 +197,21 @@ export const locationService = {
 };
 
 export const priceService = {
-  async report(productId: number, locationId: number, price: number): Promise<void> {
+  async report(productId: number, locationId: number, price: number, userLatitude?: number, userLongitude?: number): Promise<void> {
     await fetchAuthenticated(API.endpoints.reportPrice, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ productId, locationId, price }),
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ productId, locationId, price, userLatitude, userLongitude }),
     });
   },
 
   async getSummary(productId: number): Promise<PriceSummaryResponse> {
     const res = await fetchAuthenticated(API.endpoints.priceDetails(productId));
+    return handleResponse(res);
+  },
+
+  async getLocationPrices(productId: number, locationId: number): Promise<LocationProductPrice[]> {
+    const res = await fetchAuthenticated(API.endpoints.locationPrices(productId, locationId));
     return handleResponse(res);
   },
 
@@ -197,7 +232,30 @@ export const priceService = {
 
     const res = await fetchAuthenticated(url);
     return handleResponse(res);
-  }
+  },
+
+  async getPendingValidation(latitude: number, longitude: number): Promise<PendingValidationResponse[]> {
+    const res = await fetchAuthenticated(
+      `${API.endpoints.pendingValidation}?latitude=${latitude}&longitude=${longitude}`,
+    );
+    return handleResponse(res);
+  },
+
+  async confirmPrice(id: number): Promise<ConfirmPriceResponse> {
+    const res = await fetchAuthenticated(API.endpoints.confirmPrice(id), {
+      method: 'POST',
+    });
+    return handleResponse(res);
+  },
+
+  async disputePrice(id: number, request: DisputePriceRequest): Promise<LocationProductPrice> {
+    const res = await fetchAuthenticated(API.endpoints.disputePrice(id), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    });
+    return handleResponse(res);
+  },
 };
 
 export const authService = {
