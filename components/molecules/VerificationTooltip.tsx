@@ -24,19 +24,19 @@ export function getVerificationConfig(score: number) {
 function getVerificationContent(score: number) {
   if (score >= 0.9) {
     return {
-      title: 'Precio Verificado',
-      message: 'Este precio es altamente confiable debido a la consistencia y recencia de los reportes recibidos.',
+      title: 'Precio confiable',
+      message: 'Este precio tiene un alto nivel de confianza según las verificaciones realizadas por la plataforma y es probable que refleje el valor actual del producto.',
     };
   }
   if (score > 0.75) {
     return {
-      title: 'Confiabilidad Media',
-      message: 'Este precio tiene una confiabilidad aceptable, pero recomendamos verificar la fecha del reporte.',
+      title: 'Precio con confianza moderada',
+      message: 'Este precio presenta un nivel de confianza intermedio. Puede ser correcto, pero recomendamos verificarlo antes de tomar una decisión.',
     };
   }
   return {
-    title: 'Baja Confiabilidad',
-    message: 'Este precio tiene baja consistencia o es antiguo. Tomalo solo como una referencia.',
+    title: 'Precio poco confiable',
+    message: 'Este precio tiene un bajo nivel de confianza y podría no reflejar el valor actual del producto. Considérelo con precaución o solo como referencia.',
   };
 }
 

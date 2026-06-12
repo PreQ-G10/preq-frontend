@@ -51,7 +51,7 @@ export function Tooltip({
           ]}
         >
           {(title || icon) && (
-            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4, gap: 6 }}>
+            <View style={styles.titleIcon}>
               {icon && <Ionicons name={icon} size={16} color={iconColor} />}
               {title && <AppText variant="label" style={{ color: iconColor }}>{title}</AppText>}
             </View>
