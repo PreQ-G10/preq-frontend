@@ -1,4 +1,5 @@
 import { AppText, Spinner } from '@/components/atoms';
+import { VerificationTooltip, getVerificationConfig } from '@/components/molecules/VerificationTooltip';
 import { Colors, Spacing } from '@/constants/theme';
 import { priceService } from '@/services/api';
 import { PriceSummaryResponse } from '@/types';
@@ -24,6 +25,7 @@ export function PriceSummaryPanel({ productId, summary }: PriceSummaryPanelProps
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
   const [locationReports, setLocationReports] = useState<Record<number, any[]>>({});
   const [loadingReports, setLoadingReports] = useState<Record<number, boolean>>({});
+  const [tooltip, setTooltip] = useState<{ score: number, x: number, y: number } | null>(null);
 
   const handleToggle = async (index: number, locationId: number) => {
     const isExpanded = expandedIndex === index;
@@ -45,6 +47,11 @@ export function PriceSummaryPanel({ productId, summary }: PriceSummaryPanelProps
         setLoadingReports(prev => ({ ...prev, [locationId]: false }));
       }
     }
+  };
+
+  const handleVerificationInfo = (score: number, event: any) => {
+    const { pageX, pageY } = event.nativeEvent;
+    setTooltip({ score, x: pageX, y: pageY });
   };
 
   return (
@@ -89,6 +96,7 @@ export function PriceSummaryPanel({ productId, summary }: PriceSummaryPanelProps
                     <AppText variant="bodySmall" color="secondary">{loc.address} · {loc.reportCount} reportes</AppText>
                   </View>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: Spacing.xs }}>
+
                     <AppText style={styles.locationPrice}>{formatPrice(loc.avgPrice)}</AppText>
                     <Ionicons 
                       name={isExpanded ? "chevron-up" : "chevron-down"} 
@@ -105,12 +113,29 @@ export function PriceSummaryPanel({ productId, summary }: PriceSummaryPanelProps
                     </View>
                   ) : (
                     <View style={{ paddingHorizontal: Spacing.md, paddingBottom: Spacing.sm, gap: 4 }}>
-                      {locationReports[loc.id]?.map((report: any, rIdx: number) => (
+                      {locationReports[loc.id]?.map((report: any, rIdx: number) => {
+                        const config = getVerificationConfig(report.score);
+                        return (
                         <View key={rIdx} style={{ flexDirection: 'row', justifyContent: 'space-between', opacity: 0.8 }}>
-                          <AppText variant="bodySmall">{formatPrice(report.price)}</AppText>
+                          <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                            <TouchableOpacity 
+                              onPress={(e) => handleVerificationInfo(report.score, e)}
+                              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                            >
+                              <Ionicons 
+                                name={config.name} 
+                                size={16} 
+                                color={config.color} 
+                                style={styles.verificationIcon} 
+                              />
+                            </TouchableOpacity>
+                            <AppText variant="bodySmall">{formatPrice(report.price)}</AppText>
+                          </View>
+
                           <AppText variant="caption" color="secondary">{formatDate(report.reportedAt)}</AppText>
                         </View>
-                      ))}
+                        );
+                      })}
                     </View>
                   )
                 )}
@@ -119,6 +144,14 @@ export function PriceSummaryPanel({ productId, summary }: PriceSummaryPanelProps
           })}
         </View>
       )}
+
+      <VerificationTooltip
+        visible={!!tooltip}
+        score={tooltip?.score ?? 0}
+        x={tooltip?.x ?? 0}
+        y={tooltip?.y ?? 0}
+        onClose={() => setTooltip(null)}
+      />
     </View>
   );
 }

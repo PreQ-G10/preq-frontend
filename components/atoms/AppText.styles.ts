@@ -1,5 +1,5 @@
-import { StyleSheet } from 'react-native';
 import { Colors, Typography } from '@/constants/theme';
+import { StyleSheet } from 'react-native';
 
 export const styles = StyleSheet.create({
   h1: { fontSize: Typography.sizes.xxxl, fontWeight: Typography.weights.black, lineHeight: 38 },
@@ -15,5 +15,6 @@ export const styles = StyleSheet.create({
   color_primary: { color: Colors.primary },
   color_white: { color: Colors.white },
   color_success: { color: Colors.success },
+  color_warning: { color: Colors.warning},
   color_error: { color: Colors.error },
 });

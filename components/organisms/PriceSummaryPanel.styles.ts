@@ -60,4 +60,5 @@ export const styles = StyleSheet.create({
     fontWeight: Typography.weights.semibold,
     color: Colors.text,
   },
+  verificationIcon: {},
 });
