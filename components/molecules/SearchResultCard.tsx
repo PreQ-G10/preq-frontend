@@ -9,6 +9,8 @@ import { styles } from './SearchResultCard.styles';
 
 interface SearchResultCardProps {
   product: Product;
+  minPrice?: number;
+  maxPrice?: number;
   onPress: () => void;
 }
 
@@ -16,7 +18,7 @@ function formatPrice(value: number) {
   return value.toLocaleString('es-AR', { style: 'currency', currency: 'ARS' });
 }
 
-export function SearchResultCard({ product, onPress }: SearchResultCardProps) {
+export function SearchResultCard({ product, minPrice, maxPrice, onPress }: SearchResultCardProps) {
   const { items, addToCart, updateQuantity } = useCart();
   const cartItem = items.find((i) => i.product.id === product.id);
   const cartQuantity = cartItem?.quantity ?? 0;
@@ -41,19 +43,19 @@ export function SearchResultCard({ product, onPress }: SearchResultCardProps) {
           </View>
 
           <View style={styles.rightColumn}>
-            {product.minPrice !== undefined && product.minPrice > 0 && (
+            {minPrice !== undefined && minPrice > 0 && (
               <View style={styles.priceRow}>
                 <Ionicons name="arrow-down" size={14} color={Colors.success} />
                 <AppText variant="bodySmall" color="success" style={styles.priceText}>
-                  {formatPrice(product.minPrice)}
+                  {formatPrice(minPrice)}
                 </AppText>
               </View>
             )}
-            {product.maxPrice !== undefined && product.maxPrice > 0 && (
+            {maxPrice !== undefined && maxPrice > 0 && (
               <View style={styles.priceRow}>
                 <Ionicons name="arrow-up" size={14} color={Colors.error} />
                 <AppText variant="bodySmall" color="error" style={styles.priceText}>
-                  {formatPrice(product.maxPrice)}
+                  {formatPrice(maxPrice)}
                 </AppText>
               </View>
             )}

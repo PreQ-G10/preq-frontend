@@ -28,5 +28,6 @@ export const API = {
     contestField: (id: number) => `${BASE_URL}/api/products/${id}/contestField`,
     nearbyOffers: `${BASE_URL}/api/products/offers-nearby`,
     locationPrices: (productId: number, locationId: number) => `${BASE_URL}/api/prices/${productId}/${locationId}`,
+    priceHistory: (productId: number) => `${BASE_URL}/api/prices/history/${productId}`,
   },
 };

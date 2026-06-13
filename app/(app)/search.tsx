@@ -3,7 +3,7 @@ import { SearchBar, SearchResultCard } from '@/components/molecules';
 import { Routes } from '@/constants/routes';
 import { Colors } from '@/constants/theme';
 import { productService } from '@/services/api';
-import { Product } from '@/types';
+import { Product, ProductSearchWithPrice } from '@/types';
 import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
@@ -13,7 +13,7 @@ import { styles } from './search.styles';
 export default function SearchScreen() {
   const { query: initialQuery } = useLocalSearchParams<{ query: string }>();
   const [query, setQuery] = useState(initialQuery ?? '');
-  const [results, setResults] = useState<Product[]>([]);
+  const [results, setResults] = useState<ProductSearchWithPrice[]>([]);
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -73,11 +73,13 @@ export default function SearchScreen() {
           </View>
         )}
 
-        {!loading && results.map(product => (
+        {!loading && results.map(data => (
           <SearchResultCard
-            key={product.id}
-            product={product}
-            onPress={() => handleProductPress(product)}
+            key={data.product.id}
+            product={data.product}
+            maxPrice={data.maxPrice}
+            minPrice={data.minPrice}
+            onPress={() => handleProductPress(data.product)}
           />
         ))}
       </ScrollView>
