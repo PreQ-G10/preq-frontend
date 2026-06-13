@@ -25,8 +25,6 @@ export interface Product {
   brand: string;
   quantity: number;
   quantityType: string;
-  minPrice?: number;
-  maxPrice?: number;
   barcode?: string;
   images: string[];
 }
@@ -74,6 +72,7 @@ export interface PriceSummaryResponse {
   maxPrice: number;
   minPrice: number;
   weightedPrice: number;
+  weightedByConfidencePrice: number;
   topLocations: TopLocationResponse[];
 }
 
@@ -202,4 +201,15 @@ export interface NearbyOffer {
   distanceMeters: number;
   price: number;
   averagePrice: number;
+}
+
+export interface PriceHistoryPoint {
+  weekStart: string;
+  avgPrice: number;
+}
+
+export interface ProductSearchWithPrice {
+  product: Product;
+  minPrice?: number;
+  maxPrice?: number;
 }

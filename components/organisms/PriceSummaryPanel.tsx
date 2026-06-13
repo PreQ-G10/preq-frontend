@@ -58,8 +58,13 @@ export function PriceSummaryPanel({ productId, summary }: PriceSummaryPanelProps
     <View style={styles.container}>
       <View style={styles.weightedCard}>
         <AppText variant="label" color="primary">Precio estimado actual</AppText>
-        <AppText variant="caption" color="secondary">Ajustado por inflación reciente</AppText>
+        <AppText variant="caption" color="secondary">Ajustado por inflación aproximada</AppText>
         <AppText style={styles.weightedValue}>{formatPrice(summary.weightedPrice)}</AppText>
+      </View>
+
+      <View style={styles.confidenceCard}>
+        <AppText variant="label" color="secondary">Precio estimado actual (sin considerar inflación)</AppText>
+        <AppText style={styles.confidenceValue}>{formatPrice(summary.weightedByConfidencePrice)}</AppText>
       </View>
 
       <View style={styles.statsRow}>

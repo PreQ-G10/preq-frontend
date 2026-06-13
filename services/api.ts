@@ -16,9 +16,11 @@ import {
   LoginRequest,
   NearbyOffer,
   PendingValidationResponse,
+  PriceHistoryPoint,
   PriceSummaryResponse,
   Product,
   ProductDetectionResponse,
+  ProductSearchWithPrice,
   RegisterRequest,
   UpdateUserRequest,
   UserProfile
@@ -117,7 +119,7 @@ export const productService = {
     return handleResponse(res);
   },
 
-  async search(name: string): Promise<Product[]> {
+  async search(name: string): Promise<ProductSearchWithPrice[]> {
     const res = await fetchAuthenticated(`${API.endpoints.searchProducts}?name=${encodeURIComponent(name)}`);
     return handleResponse(res);
   },
@@ -255,6 +257,11 @@ export const priceService = {
       body: JSON.stringify(request),
     });
     return handleResponse(res);
+  },
+
+  getPriceHistory: async (productId: number): Promise<PriceHistoryPoint[]> => {
+    const response = await fetchAuthenticated(API.endpoints.priceHistory(productId));
+    return handleResponse(response);
   },
 };
 
