@@ -2,20 +2,20 @@ import { AppText, Button, Divider } from '@/components/atoms';
 import { SearchBar } from '@/components/molecules';
 import { Colors } from '@/constants/theme';
 import { productService } from '@/services/api';
-import { Product } from '@/types';
+import { ProductSearchWithPrice } from '@/types';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import { ScrollView, TouchableOpacity, View } from 'react-native';
 import { styles } from './ProductSearchResults.styles';
 
 interface ProductSearchResultsProps {
-  onSelect: (product: Product) => void;
+  onSelect: (product: ProductSearchWithPrice) => void;
   onCreateNew: () => void;
 }
 
 export function ProductSearchResults({ onSelect, onCreateNew }: ProductSearchResultsProps) {
   const [query, setQuery] = useState('');
-  const [results, setResults] = useState<Product[]>([]);
+  const [results, setResults] = useState<ProductSearchWithPrice[]>([]);
   const [loading, setLoading] = useState(false);
 
   async function handleSearch() {
@@ -44,11 +44,11 @@ export function ProductSearchResults({ onSelect, onCreateNew }: ProductSearchRes
               <AppText variant="body" color="secondary">No hay resultados para &quot;{query}&quot;</AppText>
             </View>
           )}
-          {results.map((product) => (
-            <TouchableOpacity key={product.id} style={styles.resultItem} onPress={() => onSelect(product)} activeOpacity={0.7}>
+          {results.map((data) => (
+            <TouchableOpacity key={data.product.id} style={styles.resultItem} onPress={() => onSelect(data)} activeOpacity={0.7}>
               <View style={styles.resultInfo}>
-                <AppText variant="body">{product.name}</AppText>
-                <AppText variant="bodySmall" color="secondary">{product.brand} · {product.quantity}{product.quantityType}</AppText>
+                <AppText variant="body">{data.product.name}</AppText>
+                <AppText variant="bodySmall" color="secondary">{data.product.brand} · {data.product.quantity}{data.product.quantityType}</AppText>
               </View>
               <Ionicons name="chevron-forward" size={18} color={Colors.gray400} style={styles.arrow} />
             </TouchableOpacity>

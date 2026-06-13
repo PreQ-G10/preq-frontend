@@ -3,7 +3,7 @@ import { BarcodeProductFound, CreateProductForm, ProductDetectionResult, Product
 import { Routes } from '@/constants/routes';
 import { Colors } from '@/constants/theme';
 import { productService } from '@/services/api';
-import { Product, ProductDetectionResponse } from '@/types';
+import { Product, ProductDetectionResponse, ProductSearchWithPrice } from '@/types';
 import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useMemo, useState } from 'react';
@@ -90,8 +90,8 @@ export default function ProductConfirmScreen() {
     setStep('search');
   }
 
-  function handleSelectFromSearch(product: Product) {
-    router.push(Routes.productDetails(product.id));
+  function handleSelectFromSearch(data: ProductSearchWithPrice) {
+    router.push(Routes.productDetails(data.product.id));
   }
 
   function handleProductCreated(product: Product) {
