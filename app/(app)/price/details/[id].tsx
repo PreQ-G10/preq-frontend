@@ -1,9 +1,9 @@
 import { AppText, Button, Spinner } from '@/components/atoms';
-import { PriceSummaryPanel } from '@/components/organisms';
+import { PriceHistoryChart, PriceSummaryPanel } from '@/components/organisms';
 import { Routes } from '@/constants/routes';
 import { Colors } from '@/constants/theme';
 import { priceService } from '@/services/api';
-import { PriceSummaryResponse } from '@/types';
+import { PriceHistoryPoint, PriceSummaryResponse } from '@/types';
 import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
@@ -14,12 +14,16 @@ export default function PriceDetailsScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const [summary, setSummary] = useState<PriceSummaryResponse | null>(null);
   const [loading, setLoading] = useState(true);
+  const [history, setHistory] = useState<PriceHistoryPoint[]>([]);
 
   useEffect(() => {
-    priceService.getSummary(Number(id))
-      .then(setSummary)
-      .catch(() => setSummary(null))
-      .finally(() => setLoading(false));
+    Promise.all([
+      priceService.getSummary(Number(id)).catch(() => null),
+      priceService.getPriceHistory(Number(id)).catch(() => []),
+    ]).then(([summary, history]) => {
+      setSummary(summary);
+      setHistory(history);
+    }).finally(() => setLoading(false));
   }, [id]);
 
   if (loading) return <Spinner fullScreen message="Cargando precios..." />;
@@ -36,7 +40,8 @@ export default function PriceDetailsScreen() {
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {summary && summary.avgPrice > 0 ? (
           <>
-            <PriceSummaryPanel productId= {id} summary={summary} />
+            <PriceSummaryPanel productId={id} summary={summary} />
+            <PriceHistoryChart data={history} />
             <Button
               label="Ver mapa de calor"
               variant="secondary"

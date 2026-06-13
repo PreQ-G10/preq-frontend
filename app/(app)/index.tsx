@@ -6,7 +6,7 @@ import { Routes } from '@/constants/routes';
 import { Colors, Spacing } from '@/constants/theme';
 import { useCart } from '@/context/cartContext';
 import { priceService, productService } from '@/services/api';
-import { NearbyOffer, Product } from '@/types';
+import { NearbyOffer, ProductSearchWithPrice } from '@/types';
 import { Ionicons } from '@expo/vector-icons';
 import { router, useFocusEffect } from 'expo-router';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
@@ -22,7 +22,7 @@ const tips = [
 
 export default function HomeScreen() {
   const [query, setQuery] = useState('');
-  const [results, setResults] = useState<Product[]>([]);
+  const [results, setResults] = useState<ProductSearchWithPrice[]>([]);
   const [searching, setSearching] = useState(false);
   const [showResults, setShowResults] = useState(false);
   const [pendingCount, setPendingCount] = useState(0);
@@ -151,19 +151,19 @@ export default function HomeScreen() {
           {showResults && (searching || results.length > 0) && (
             <View style={styles.dropdown}>
               {searching && <Spinner size="small" />}
-              {!searching && results.slice(0, 3).map(product => (
+              {!searching && results.slice(0, 3).map(data => (
                 <TouchableOpacity
-                  key={product.id}
+                  key={data.product.id}
                   style={styles.dropdownItem}
                   onPress={() => {
                     setShowResults(false);
-                    router.push(Routes.productDetails(product.id));
+                    router.push(Routes.productDetails(data.product.id));
                   }}
                   activeOpacity={0.7}
                 >
-                  <AppText variant="body">{product.name}</AppText>
+                  <AppText variant="body">{data.product.name}</AppText>
                   <AppText variant="bodySmall" color="secondary">
-                    {product.brand} · {product.quantity} {product.quantityType}
+                    {data.product.brand} · {data.product.quantity} {data.product.quantityType}
                   </AppText>
                 </TouchableOpacity>
               ))}

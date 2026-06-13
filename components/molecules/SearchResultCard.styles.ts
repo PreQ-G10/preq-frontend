@@ -31,7 +31,10 @@ export const styles = StyleSheet.create({
     priceRow: { 
       flexDirection: 'row', 
       alignItems: 'center', 
-      gap: 2 
+      gap: 4 
+    },
+    verificationIcon: {
+      marginRight: 2,
     },
     priceText: { 
       fontWeight: '600' 

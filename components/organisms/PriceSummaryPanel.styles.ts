@@ -60,4 +60,19 @@ export const styles = StyleSheet.create({
     fontWeight: Typography.weights.semibold,
     color: Colors.text,
   },
+  verificationIcon: {},
+
+  confidenceCard: {
+    padding: Spacing.md,
+    borderRadius: Radius.md,
+    backgroundColor: Colors.gray50,
+    borderWidth: 2,
+    borderColor: '#ffd6e5',
+    gap: Spacing.xs,
+  },
+  confidenceValue: {
+    fontSize: Typography.sizes.lg,
+    fontWeight: Typography.weights.semibold,
+    color: Colors.textMuted,
+  },
 });
