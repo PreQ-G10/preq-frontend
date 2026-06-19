@@ -14,4 +14,5 @@ export const Routes = {
   cart: '/cart' as const,
   cartCompare: '/cart/compare' as const,
   validation: '/validation' as const,
+  catalogue: '/catalogue' as const,
 };

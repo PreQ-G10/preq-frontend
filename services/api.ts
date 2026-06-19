@@ -1,18 +1,26 @@
 import { API } from '@/constants/api';
 import {
+  AddToCatalogueRequest,
   AuthResponse,
   BarcodeDetectionResponse,
+  BusinessProfileResponse,
+  BusinessRegisterRequest,
+  BusinessRegisterResponse,
   CartCompareRequest,
   CartCompareResponse,
+  CatalogueItem,
   ConfirmPriceResponse,
   ContestProductFieldRequest,
   CreateProductRequest,
+  DeleteFromCatalogueRequest,
+  DeleteFromCatalogueResponse,
   DisputePriceRequest,
   FieldContestStatus,
   HeatmapPointResponse,
   Location,
   LocationDetectionResponse,
   LocationProductPrice,
+  LocationSearchResult,
   LoginRequest,
   NearbyOffer,
   PendingValidationResponse,
@@ -22,6 +30,8 @@ import {
   ProductDetectionResponse,
   ProductSearchWithPrice,
   RegisterRequest,
+  UpdateBusinessProfileRequest,
+  UpdateCataloguePriceRequest,
   UpdateUserRequest,
   UserProfile
 } from '@/types';
@@ -31,7 +41,7 @@ const DEFAULT_HEADERS = {
   'ngrok-skip-browser-warning': 'true',
 };
 
-async function fetchWithTimeout(url: string, options: RequestInit, timeoutMs = 60000): Promise<Response> {
+async function fetchWithTimeout(url: string, options: RequestInit = {}, timeoutMs = 60000): Promise<Response> {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
@@ -171,6 +181,34 @@ export const productService = {
 export const locationService = {
   async search(name: string): Promise<Location[]> {
     const res = await fetchAuthenticated(`${API.endpoints.searchLocations}?name=${encodeURIComponent(name)}`);
+    return handleResponse(res);
+  },
+
+  async searchNearby(lat: number, lng: number): Promise<LocationSearchResult[]> {
+    const response = await fetchWithTimeout(`${API.endpoints.searchLocationByPoints}?lat=${lat}&lng=${lng}`);
+    return handleResponse(response);
+  },
+
+  async register(data: BusinessRegisterRequest): Promise<BusinessRegisterResponse> {
+    const response = await fetchWithTimeout(`${API.endpoints.registerLocation}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    return handleResponse(response);
+  },
+
+  getProfile: async (): Promise<BusinessProfileResponse> => {
+    const response = await fetchAuthenticated(`${API.endpoints.locationProfile}`);
+    return handleResponse(response);
+  },
+
+  updateProfile: async (data: UpdateBusinessProfileRequest): Promise<BusinessProfileResponse> => {
+    const res = await fetchAuthenticated(`${API.endpoints.updateLocationProfile}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
     return handleResponse(res);
   },
 
@@ -345,5 +383,39 @@ export const cartService = {
       body: JSON.stringify(request),
     });
     return handleResponse(res);
+  },
+};
+
+export const catalogueService = {
+  getCatalogue: async (): Promise<CatalogueItem[]> => {
+    const response = await fetchAuthenticated(API.endpoints.businessCatalogue);
+    return handleResponse(response);
+  },
+
+  addToCatalogue: async (request: AddToCatalogueRequest): Promise<CatalogueItem> => {
+    const response = await fetchAuthenticated(API.endpoints.businessCatalogue, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    });
+    return handleResponse(response);
+  },
+
+  updatePrices: async (request: UpdateCataloguePriceRequest): Promise<CatalogueItem[]> => {
+    const response = await fetchAuthenticated(API.endpoints.businessCatalogue, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    });
+    return handleResponse(response);
+  },
+
+  deleteFromCatalogue: async (request: DeleteFromCatalogueRequest): Promise<DeleteFromCatalogueResponse> => {
+    const response = await fetchAuthenticated(API.endpoints.businessCatalogue, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    });
+    return handleResponse(response);
   },
 };
