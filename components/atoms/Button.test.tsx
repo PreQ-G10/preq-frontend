@@ -1,5 +1,4 @@
 import { fireEvent, render } from '@testing-library/react-native';
-import '@testing-library/react-native/extend-expect';
 import React from 'react';
 import { Button } from './Button';
 
