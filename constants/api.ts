@@ -29,5 +29,10 @@ export const API = {
     nearbyOffers: `${BASE_URL}/api/products/offers-nearby`,
     locationPrices: (productId: number, locationId: number) => `${BASE_URL}/api/prices/${productId}/${locationId}`,
     priceHistory: (productId: number) => `${BASE_URL}/api/prices/history/${productId}`,
+    searchLocationByPoints: `${BASE_URL}/api/locations/search-point`,
+    registerLocation: `${BASE_URL}/api/locations/register`,
+    locationProfile: `${BASE_URL}/api/locations/profile`,
+    updateLocationProfile: `${BASE_URL}/api/locations/update`,
+    businessCatalogue: `${BASE_URL}/api/business/catalogue`,
   },
 };

@@ -12,13 +12,14 @@ interface SearchResultCardProps {
   minPrice?: number;
   maxPrice?: number;
   onPress: () => void;
+  isBusiness?: boolean;
 }
 
 function formatPrice(value: number) {
   return value.toLocaleString('es-AR', { style: 'currency', currency: 'ARS' });
 }
 
-export function SearchResultCard({ product, minPrice, maxPrice, onPress }: SearchResultCardProps) {
+export function SearchResultCard({ product, minPrice, maxPrice, onPress, isBusiness = false }: SearchResultCardProps) {
   const { items, addToCart, updateQuantity } = useCart();
   const cartItem = items.find((i) => i.product.id === product.id);
   const cartQuantity = cartItem?.quantity ?? 0;
@@ -43,7 +44,7 @@ export function SearchResultCard({ product, minPrice, maxPrice, onPress }: Searc
           </View>
 
           <View style={styles.rightColumn}>
-            {minPrice !== undefined && minPrice > 0 && (
+            {!isBusiness && minPrice !== undefined && minPrice > 0 && (
               <View style={styles.priceRow}>
                 <Ionicons name="arrow-down" size={14} color={Colors.success} />
                 <AppText variant="bodySmall" color="success" style={styles.priceText}>
@@ -51,7 +52,7 @@ export function SearchResultCard({ product, minPrice, maxPrice, onPress }: Searc
                 </AppText>
               </View>
             )}
-            {maxPrice !== undefined && maxPrice > 0 && (
+            {!isBusiness && maxPrice !== undefined && maxPrice > 0 && (
               <View style={styles.priceRow}>
                 <Ionicons name="arrow-up" size={14} color={Colors.error} />
                 <AppText variant="bodySmall" color="error" style={styles.priceText}>
@@ -60,36 +61,38 @@ export function SearchResultCard({ product, minPrice, maxPrice, onPress }: Searc
               </View>
             )}
             
-            <View style={styles.cartActions}>
-              {cartQuantity > 0 ? (
-                <View style={styles.quantityControls}>
+            {!isBusiness && (
+              <View style={styles.cartActions}>
+                {cartQuantity > 0 ? (
+                  <View style={styles.quantityControls}>
+                    <TouchableOpacity
+                      onPress={(e) => { e.stopPropagation(); updateQuantity(product.id, cartQuantity - 1); }}
+                      style={styles.quantityBtn}
+                    >
+                      <Ionicons 
+                        name={cartQuantity === 1 ? 'trash-outline' : 'remove'} 
+                        size={14} 
+                        color={cartQuantity === 1 ? Colors.error : Colors.text} 
+                      />
+                    </TouchableOpacity>
+                    <AppText variant="label" style={styles.quantityText}>{cartQuantity}</AppText>
+                    <TouchableOpacity
+                      onPress={(e) => { e.stopPropagation(); updateQuantity(product.id, cartQuantity + 1); }}
+                      style={styles.quantityBtn}
+                    >
+                      <Ionicons name="add" size={14} color={Colors.text} />
+                    </TouchableOpacity>
+                  </View>
+                ) : (
                   <TouchableOpacity
-                    onPress={(e) => { e.stopPropagation(); updateQuantity(product.id, cartQuantity - 1); }}
-                    style={styles.quantityBtn}
+                    onPress={(e) => { e.stopPropagation(); addToCart(product); }}
+                    style={styles.addBtn}
                   >
-                    <Ionicons 
-                      name={cartQuantity === 1 ? 'trash-outline' : 'remove'} 
-                      size={14} 
-                      color={cartQuantity === 1 ? Colors.error : Colors.text} 
-                    />
+                    <Ionicons name="add" size={20} color={Colors.white} />
                   </TouchableOpacity>
-                  <AppText variant="label" style={styles.quantityText}>{cartQuantity}</AppText>
-                  <TouchableOpacity
-                    onPress={(e) => { e.stopPropagation(); updateQuantity(product.id, cartQuantity + 1); }}
-                    style={styles.quantityBtn}
-                  >
-                    <Ionicons name="add" size={14} color={Colors.text} />
-                  </TouchableOpacity>
-                </View>
-              ) : (
-                <TouchableOpacity
-                  onPress={(e) => { e.stopPropagation(); addToCart(product); }}
-                  style={styles.addBtn}
-                >
-                  <Ionicons name="add" size={20} color={Colors.white} />
-                </TouchableOpacity>
-              )}
-            </View>
+                )}
+              </View>
+            )}
           </View>
         </View>
       </Card>

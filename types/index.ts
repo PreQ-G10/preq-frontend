@@ -103,6 +103,7 @@ export interface RegisterRequest {
   address?: string;
   latitude?: number;
   longitude?: number;
+  role: string;
   email: string;
   password: string;
 }
@@ -212,4 +213,78 @@ export interface ProductSearchWithPrice {
   product: Product;
   minPrice?: number;
   maxPrice?: number;
+}
+
+export interface BusinessRegisterRequest {
+  email: string;
+  password: string;
+  ownerName: string;
+  ownerLastName: string;
+  businessPhone: string;
+  cuit?: string;
+  locationId?: number;
+  locationName?: string;
+  locationAddress?: string;
+  locationType?: string;
+}
+
+export interface LocationSearchResult {
+  id: number;
+  name: string;
+  address: string;
+  type: string;
+  claimStatus: string;
+}
+
+export interface BusinessRegisterResponse {
+  userRegisterResponse: AuthResponse;
+  locationResponse: Location;
+}
+
+export interface BusinessProfileResponse {
+  ownerName: string;
+  ownerLastName: string;
+  email: string;
+  businessPhone: string;
+  cuit?: string;
+  locationName: string;
+  locationAddress: string;
+  claimStatus: 'UNCLAIMED' | 'PENDING' | 'PENDING_FORMAL' | 'CLAIMED';
+}
+
+export interface UpdateBusinessProfileRequest {
+  ownerName: string;
+  ownerLastName: string;
+  businessPhone: string;
+  cuit?: string;
+  locationName?: string;
+  locationAddress?: string;
+}
+
+export interface CatalogueItem {
+  productId: number;
+  name: string;
+  brand: string;
+  quantity: number;
+  quantityType: string;
+  barcode?: string;
+  price: number;
+  updatedAt: string;
+}
+
+export interface AddToCatalogueRequest {
+  productId: number;
+  price: number;
+}
+
+export interface UpdateCataloguePriceRequest {
+  updates: { productId: number; price: number }[];
+}
+
+export interface DeleteFromCatalogueRequest {
+  productIds: number[];
+}
+
+export interface DeleteFromCatalogueResponse {
+  deletedProductIds: number[];
 }

@@ -1,0 +1,70 @@
+import { Colors, Radius, Spacing, Typography } from '@/constants/theme';
+import { StyleSheet } from 'react-native';
+
+export const styles = StyleSheet.create({
+  flex: { flex: 1 },
+  centered: { justifyContent: 'center', alignItems: 'center' },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.md,
+    backgroundColor: Colors.primary,
+  },
+  backButton: { padding: Spacing.xs },
+  content: { padding: Spacing.lg },
+  avatarSection: {
+    alignItems: 'center',
+    marginBottom: Spacing.xl,
+    gap: Spacing.sm,
+  },
+  avatar: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    backgroundColor: Colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  form: { gap: Spacing.xs },
+  fieldLabel: { marginTop: Spacing.sm, marginBottom: Spacing.xs },
+  input: {
+    borderWidth: 1,
+    borderColor: Colors.border,
+    borderRadius: Radius.sm,
+    padding: Spacing.md,
+    marginBottom: Spacing.sm,
+    fontSize: Typography.sizes.md,
+    color: Colors.text,
+    backgroundColor: Colors.surface,
+  },
+  addressRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: Spacing.sm,
+    gap: Spacing.sm,
+  },
+  clearButton: { padding: Spacing.xs },
+  suggestions: {
+    borderWidth: 1,
+    borderColor: Colors.border,
+    borderRadius: Radius.sm,
+    backgroundColor: Colors.surface,
+    marginBottom: Spacing.sm,
+  },
+  suggestionItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: Spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.border,
+  },
+  logoutButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: Spacing.xl,
+    gap: Spacing.xs,
+  },
+});
