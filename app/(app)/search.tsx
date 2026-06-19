@@ -96,7 +96,7 @@ export default function SearchScreen() {
         {!loading && searched && results.length === 0 && (
           <View style={styles.empty}>
             <Ionicons name="search-outline" size={48} color={Colors.gray300} />
-            <AppText variant="body" color="secondary">No hay resultados para "{query}"</AppText>
+            <AppText variant="body" color="secondary">No hay resultados para &quot;{query}&quot;</AppText>
           </View>
         )}
 
