@@ -219,4 +219,79 @@ export const styles = StyleSheet.create({
     color: Colors.text,
     backgroundColor: Colors.background,
   },
+
+  // Stale-price review section
+  staleSection: {
+    marginHorizontal: Spacing.sm,
+    marginTop: Spacing.md,
+    padding: Spacing.sm,
+    borderRadius: Radius.lg,
+    backgroundColor: Colors.primary + '0D',
+    borderWidth: 1,
+    borderColor: Colors.primary + '33',
+  },
+  staleSectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.xs,
+    marginBottom: Spacing.sm,
+  },
+  staleSectionTitle: {
+    flex: 1,
+    color: Colors.text,
+  },
+  staleList: { gap: Spacing.sm },
+  staleListContainer: {
+    maxHeight: 160,
+  },
+  staleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.surface,
+    borderRadius: Radius.md,
+    padding: Spacing.sm,
+    gap: Spacing.sm,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  staleRowKept: {
+    backgroundColor: Colors.success + '14',
+    borderColor: Colors.success,
+  },
+  staleRowInfo: { flex: 1, minWidth: 0, gap: 2 },
+  staleRowName: { fontWeight: Typography.weights.semibold },
+  staleRowUpdated: { fontStyle: 'italic' },
+  staleRowActions: { gap: Spacing.md },
+  staleUpdateButton: {
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: Spacing.xs,
+    borderRadius: Radius.sm,
+    backgroundColor: Colors.primary,
+  },
+  staleUpdateButtonText: {
+    color: Colors.white,
+    fontWeight: Typography.weights.semibold,
+    fontSize: Typography.sizes.md,
+  },
+  staleKeepButton: {
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: Spacing.xs,
+    borderRadius: Radius.sm,
+    borderWidth: 1,
+    borderColor: Colors.success,
+  },
+  staleKeepButtonText: {
+    color: Colors.success,
+    fontWeight: Typography.weights.semibold,
+    fontSize: Typography.sizes.md,
+  },
+  staleKeptBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  staleKeptText: {
+    color: Colors.success,
+    fontWeight: Typography.weights.semibold,
+  },
 });

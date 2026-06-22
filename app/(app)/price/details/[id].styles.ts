@@ -40,4 +40,26 @@ export const styles = StyleSheet.create({
     gap: Spacing.md,
     paddingVertical: Spacing.xxl,
   },
+  productHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: Spacing.md,
+    gap: Spacing.md,
+  },
+  productHeaderInfo: {
+    flex: 1,
+    gap: 3,
+  },
+  reportCountCard: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 2,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
+    borderRadius: Radius.md,
+    borderWidth: 1,
+    borderColor: Colors.primary,
+    minWidth: 80,
+  },
 });

@@ -1,4 +1,4 @@
-import { AppText, Spinner } from '@/components/atoms';
+import { AppText, CustomScrollView, Spinner } from '@/components/atoms';
 import { VerificationTooltip, getVerificationConfig } from '@/components/molecules/VerificationTooltip';
 import { Colors, Spacing } from '@/constants/theme';
 import { priceService } from '@/services/api';
@@ -26,6 +26,7 @@ export function PriceSummaryPanel({ productId, summary }: PriceSummaryPanelProps
   const [locationReports, setLocationReports] = useState<Record<number, any[]>>({});
   const [loadingReports, setLoadingReports] = useState<Record<number, boolean>>({});
   const [tooltip, setTooltip] = useState<{ score: number, x: number, y: number } | null>(null);
+  const [businessTooltip, setBusinessTooltip] = useState<{ color: string; label: string; message: string; icon: any; x: number; y: number } | null>(null);
 
   const handleToggle = async (index: number, locationId: number) => {
     const isExpanded = expandedIndex === index;
@@ -51,8 +52,38 @@ export function PriceSummaryPanel({ productId, summary }: PriceSummaryPanelProps
 
   const handleVerificationInfo = (score: number, event: any) => {
     const { pageX, pageY } = event.nativeEvent;
-    setTooltip({ score, x: pageX, y: pageY });
+    setTooltip({ score, x: pageX, y: pageY - 45 });
   };
+
+  function getBusinessPriceBadge(businessPrice: number, avgPrice: number, reportedAt: string) {
+    const daysSinceUpdate = Math.floor(
+      (Date.now() - new Date(reportedAt).getTime()) / (1000 * 60 * 60 * 24)
+    );
+    const deviation = (avgPrice - businessPrice) / avgPrice;
+  
+    if (deviation > 0.20 || daysSinceUpdate >= 90) {
+      return {
+        color: '#ef4444',
+        icon: 'alert-circle' as const,
+        label: 'Precio poco confiable',
+        message: 'El precio reportado por el comercio se desvía significativamente del precio de los usuarios o lleva más de 90 días sin actualizarse.',
+      };
+    }
+    if (deviation > 0.10 || daysSinceUpdate >= 60) {
+      return {
+        color: '#f59e0b',
+        icon: 'warning' as const,
+        label: 'Precio medianamente confiable',
+        message: 'El precio reportado por el comercio puede estar algo desactualizado o difiere moderadamente del precio reportado por los usuarios.',
+      };
+    }
+    return {
+      color: '#22c55e',
+      icon: 'checkmark-circle' as const,
+      label: 'Precio confiable',
+      message: 'El precio reportado por el comercio está al día y es consistente con los reportes de los usuarios.',
+    };
+  }
 
   return (
     <View style={styles.container}>
@@ -91,22 +122,23 @@ export function PriceSummaryPanel({ productId, summary }: PriceSummaryPanelProps
             const isExpanded = expandedIndex === index;
             return (
               <View key={index} style={{ marginBottom: Spacing.xs }}>
-                <TouchableOpacity 
-                  style={styles.locationRow} 
+                <TouchableOpacity
+                  style={styles.locationRow}
                   onPress={() => handleToggle(index, loc.id)}
                   activeOpacity={0.7}
                 >
                   <View style={styles.locationInfo}>
                     <AppText variant="body">{loc.name}</AppText>
-                    <AppText variant="bodySmall" color="secondary">{loc.address} · {loc.reportCount} reportes</AppText>
+                    <AppText variant="bodySmall" color="secondary">
+                      {loc.address} · {loc.reportCount} reportes
+                    </AppText>
                   </View>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: Spacing.xs }}>
-
                     <AppText style={styles.locationPrice}>{formatPrice(loc.avgPrice)}</AppText>
-                    <Ionicons 
-                      name={isExpanded ? "chevron-up" : "chevron-down"} 
-                      size={16} 
-                      color={Colors.gray400} 
+                    <Ionicons
+                      name={isExpanded ? 'chevron-up' : 'chevron-down'}
+                      size={16}
+                      color={Colors.gray400}
                     />
                   </View>
                 </TouchableOpacity>
@@ -117,31 +149,56 @@ export function PriceSummaryPanel({ productId, summary }: PriceSummaryPanelProps
                       <Spinner size="small" />
                     </View>
                   ) : (
-                    <View style={{ paddingHorizontal: Spacing.md, paddingBottom: Spacing.sm, gap: 4 }}>
+                    <CustomScrollView maxHeight={132} style={{ marginTop: 4, marginHorizontal: Spacing.md }}>
                       {locationReports[loc.id]?.map((report: any, rIdx: number) => {
+                        if (report.businessReported) {
+                          const badge = getBusinessPriceBadge(report.price, loc.avgPrice, report.reportedAt);
+                          return (
+                            <View key={rIdx} style={styles.reportRow}>
+                              <View style={styles.reportRowAccentBusiness} />
+                              <View style={styles.reportRowLeft}>
+                                <Ionicons name="storefront-outline" size={14} color={Colors.primary} />
+                                <AppText variant="bodySmall" color="primary" style={{ fontWeight: '600' }}>Comercio</AppText>
+                              </View>
+                              <View style={styles.reportPriceRow}>
+                                <AppText style={styles.reportPrice}>{formatPrice(report.price)}</AppText>
+                                <TouchableOpacity
+                                  onPress={(e) => {
+                                    const { pageX, pageY } = e.nativeEvent;
+                                    setBusinessTooltip({ color: badge.color, label: badge.label, message: badge.message, icon: badge.icon, x: pageX, y: pageY });
+                                  }}
+                                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                                >
+                                  <Ionicons name={badge.icon} size={15} color={badge.color} />
+                                </TouchableOpacity>
+                              </View>
+                              <AppText variant="caption" color="secondary" style={styles.reportDate}>{formatDate(report.reportedAt)}</AppText>
+                            </View>
+                          );
+                        }
+                      
                         const config = getVerificationConfig(report.score);
                         return (
-                        <View key={rIdx} style={{ flexDirection: 'row', justifyContent: 'space-between', opacity: 0.8 }}>
-                          <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                            <TouchableOpacity 
-                              onPress={(e) => handleVerificationInfo(report.score, e)}
-                              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                            >
-                              <Ionicons 
-                                name={config.name} 
-                                size={16} 
-                                color={config.color} 
-                                style={styles.verificationIcon} 
-                              />
-                            </TouchableOpacity>
-                            <AppText variant="bodySmall">{formatPrice(report.price)}</AppText>
+                          <View key={rIdx} style={styles.reportRow}>
+                            <View style={styles.reportRowAccentUser} />
+                            <View style={styles.reportRowLeft}>
+                              <Ionicons name="person-outline" size={14} color={Colors.gray400} />
+                              <AppText variant="bodySmall" color="secondary">Usuario</AppText>
+                            </View>
+                            <View style={styles.reportPriceRow}>
+                              <AppText style={styles.reportPrice}>{formatPrice(report.price)}</AppText>
+                              <TouchableOpacity
+                                onPress={(e) => handleVerificationInfo(report.score, e)}
+                                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                              >
+                                <Ionicons name={config.name} size={15} color={config.color} />
+                              </TouchableOpacity>
+                            </View>
+                            <AppText variant="caption" color="secondary" style={styles.reportDate}>{formatDate(report.reportedAt)}</AppText>
                           </View>
-
-                          <AppText variant="caption" color="secondary">{formatDate(report.reportedAt)}</AppText>
-                        </View>
                         );
                       })}
-                    </View>
+                    </CustomScrollView>
                   )
                 )}
               </View>
@@ -156,6 +213,16 @@ export function PriceSummaryPanel({ productId, summary }: PriceSummaryPanelProps
         x={tooltip?.x ?? 0}
         y={tooltip?.y ?? 0}
         onClose={() => setTooltip(null)}
+      />
+      <VerificationTooltip
+        visible={!!businessTooltip}
+        x={businessTooltip?.x ?? 0}
+        y={businessTooltip?.y ?? 0}
+        onClose={() => setBusinessTooltip(null)}
+        title={businessTooltip?.label}
+        message={businessTooltip?.message}
+        icon={businessTooltip?.icon}
+        iconColor={businessTooltip?.color}
       />
     </View>
   );

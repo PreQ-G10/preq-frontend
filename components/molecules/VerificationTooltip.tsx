@@ -5,10 +5,14 @@ import React from 'react';
 
 interface VerificationTooltipProps {
   visible: boolean;
-  score: number;
   x: number;
   y: number;
   onClose: () => void;
+  score?: number;
+  title?: string;
+  message?: string;
+  icon?: 'checkmark-circle' | 'warning' | 'alert-circle';
+  iconColor?: string;
 }
 
 export function getVerificationConfig(score: number) {
@@ -40,10 +44,10 @@ function getVerificationContent(score: number) {
   };
 }
 
-export function VerificationTooltip({ visible, score, x, y, onClose }: VerificationTooltipProps) {
-  const content = getVerificationContent(score);
-  const config = getVerificationConfig(score);
-  
+export function VerificationTooltip({ visible, score, x, y, onClose, title, message, icon, iconColor }: VerificationTooltipProps) {
+  const content = score !== undefined ? getVerificationContent(score) : { title: title ?? '', message: message ?? '' };
+  const config = score !== undefined ? getVerificationConfig(score) : { name: icon ?? 'alert-circle' as const, color: iconColor ?? Colors.error };
+
   return (
     <Tooltip
       visible={visible}
@@ -53,7 +57,7 @@ export function VerificationTooltip({ visible, score, x, y, onClose }: Verificat
       title={content.title}
       icon={config.name}
       iconColor={config.color}
-      style={{ top: y - 125 }} // Maintain specific height offset for this tooltip
+      style={{ top: y - 125 }}
     >
       <AppText variant="caption" color="secondary">{content.message}</AppText>
     </Tooltip>
