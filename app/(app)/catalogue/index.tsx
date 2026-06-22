@@ -8,9 +8,10 @@ import { useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
-  FlatList,
+  Animated,
   Modal,
   SafeAreaView,
+  ScrollView,
   TextInput,
   TouchableOpacity,
   View,
@@ -18,6 +19,20 @@ import {
 import { styles } from './index.styles';
 
 type SortKey = 'name' | 'price' | 'updatedAt';
+type StaleStatus = 'pending' | 'kept' | 'updated';
+
+const STALE_DAYS_THRESHOLD = 60;
+const MAX_STALE_ITEMS = 5;
+
+function daysSince(updatedAt: string): number {
+  const updated = new Date(updatedAt).getTime();
+  const now = Date.now();
+  return Math.floor((now - updated) / (1000 * 60 * 60 * 24));
+}
+
+function isStale(updatedAt: string): boolean {
+  return daysSince(updatedAt) > STALE_DAYS_THRESHOLD;
+}
 
 export default function CatalogueScreen() {
   const [items, setItems] = useState<CatalogueItem[]>([]);
@@ -34,6 +49,14 @@ export default function CatalogueScreen() {
   const [newPrice, setNewPrice] = useState('');
   const [updatingPrice, setUpdatingPrice] = useState(false);
   const longPressRef = useRef(false);
+
+  // Stale-price review section
+  const [staleIds, setStaleIds] = useState<number[]>([]);
+  const [staleStatus, setStaleStatus] = useState<Record<number, StaleStatus>>({});
+  const [keepingId, setKeepingId] = useState<number | null>(null);
+  const [staleDismissed, setStaleDismissed] = useState(false);
+  const staleInitialized = useRef(false);
+  const staleAnim = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
     load();
@@ -60,6 +83,18 @@ export default function CatalogueScreen() {
     try {
       const data = await catalogueService.getCatalogue();
       setItems(data);
+      // Snapshot which products are stale only once, right after the
+      // catalogue first loads, so the review section doesn't change shape
+      // while the user is working through it.
+      if (!staleInitialized.current) {
+        staleInitialized.current = true;
+        const stale = data
+          .filter(i => isStale(i.updatedAt))
+          .sort((a, b) => new Date(a.updatedAt).getTime() - new Date(b.updatedAt).getTime())
+          .slice(0, MAX_STALE_ITEMS)
+          .map(i => i.productId);
+        setStaleIds(stale);
+      }
     } finally {
       setLoading(false);
     }
@@ -111,6 +146,9 @@ export default function CatalogueScreen() {
         updates: [{ productId: editingItem.productId, price: parsed }],
       });
       setItems(prev => prev.map(i => i.productId === editingItem.productId ? updated[0] : i));
+      if (staleIds.includes(editingItem.productId)) {
+        setStaleStatus(prev => ({ ...prev, [editingItem.productId]: 'updated' }));
+      }
       setEditingItem(null);
       setNewPrice('');
     } catch {
@@ -120,15 +158,105 @@ export default function CatalogueScreen() {
     }
   }
 
+  async function handleKeepPrice(item: CatalogueItem) {
+    setKeepingId(item.productId);
+    try {
+      // Re-send the current price so the backend refreshes `updatedAt`,
+      // keeping this item out of the stale list next time the page loads.
+      const updated = await catalogueService.updatePrices({
+        updates: [{ productId: item.productId, price: item.price }],
+      });
+      setItems(prev => prev.map(i => i.productId === item.productId ? updated[0] : i));
+      setStaleStatus(prev => ({ ...prev, [item.productId]: 'kept' }));
+    } catch {
+      Alert.alert('Error', 'No se pudo mantener el precio. Intentá de nuevo.');
+    } finally {
+      setKeepingId(null);
+    }
+  }
+
   function exitSelectionMode() {
     setSelectionMode(false);
     setSelectedIds(new Set());
   }
 
-  const renderItem = ({ item }: { item: CatalogueItem }) => {
+  const staleSectionResolved = staleIds.every(id => staleStatus[id] === 'kept' || staleStatus[id] === 'updated');
+  const staleSectionItems = staleIds
+    .map(id => items.find(i => i.productId === id))
+    .filter((i): i is CatalogueItem => !!i);
+
+  // Fade the section out once every row has been handled, then unmount it.
+  useEffect(() => {
+    if (staleSectionItems.length === 0 || staleDismissed) return;
+    if (staleSectionResolved) {
+      Animated.timing(staleAnim, {
+        toValue: 0,
+        duration: 280,
+        useNativeDriver: true,
+      }).start(() => setStaleDismissed(true));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [staleSectionResolved]);
+
+  const renderStaleRow = (item: CatalogueItem) => {
+    const status = staleStatus[item.productId] ?? 'pending';
+    const isResolved = status === 'kept' || status === 'updated';
+    const isKeeping = keepingId === item.productId;
+    return (
+      <View
+        key={item.productId}
+        style={[styles.staleRow, isResolved && styles.staleRowKept]}
+      >
+        <View style={styles.staleRowInfo}>
+          <AppText variant="body" style={styles.staleRowName} numberOfLines={1}>
+            {item.name}
+          </AppText>
+          <AppText variant="bodySmall" color="secondary" numberOfLines={1}>
+            {item.brand} · {item.quantity} {item.quantityType}
+          </AppText>
+          <AppText variant="bodySmall" color="secondary">
+            ${item.price.toFixed(2)}
+          </AppText>
+          <AppText variant="caption" color="secondary" style={styles.staleRowUpdated}>
+            Actualizado hace {daysSince(item.updatedAt)} días
+          </AppText>
+        </View>
+
+        {isResolved ? (
+          <View style={styles.staleKeptBadge}>
+            <Ionicons name="checkmark-circle" size={16} color={styles.staleKeptText.color as string} />
+            <AppText variant="caption" style={styles.staleKeptText}>
+              {status === 'kept' ? 'Precio mantenido' : `Precio actualizado a $${item.price.toFixed(2)}`}
+            </AppText>
+          </View>
+        ) : (
+          <View style={styles.staleRowActions}>
+            <TouchableOpacity
+              style={styles.staleUpdateButton}
+              onPress={() => { setEditingItem(item); setNewPrice(String(item.price)); }}
+            >
+              <AppText variant="caption" style={styles.staleUpdateButtonText}>Actualizar precio</AppText>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.staleKeepButton, isKeeping && { opacity: 0.6 }]}
+              onPress={() => handleKeepPrice(item)}
+              disabled={isKeeping}
+            >
+              {isKeeping
+                ? <ActivityIndicator size="small" color={Colors.primary} />
+                : <AppText variant="caption" style={styles.staleKeepButtonText}>Mantener precio</AppText>}
+            </TouchableOpacity>
+          </View>
+        )}
+      </View>
+    );
+  };
+
+  const renderItem = (item: CatalogueItem) => {
     const isSelected = selectedIds.has(item.productId);
     return (
       <TouchableOpacity
+        key={item.productId}
         style={[styles.itemCard, isSelected && styles.itemCardSelected]}
         onPress={() => handlePress(item.productId)}
         onLongPress={() => handleLongPress(item.productId)}
@@ -197,61 +325,81 @@ export default function CatalogueScreen() {
         )}
       </View>
 
-      <View style={styles.toolbar}>
-        <View style={styles.searchWrapper}>
-          <Ionicons name="search-outline" size={16} color={Colors.textMuted} />
-          <TextInput
-            style={styles.searchInput}
-            value={search}
-            onChangeText={setSearch}
-            placeholder="Buscar en catálogo..."
-            placeholderTextColor={Colors.textMuted}
-          />
-        </View>
+      {/* Everything below the header scrolls as a single screen. */}
+      <ScrollView
+        contentContainerStyle={styles.list}
+        keyboardShouldPersistTaps="handled"
+      >
+        <View style={styles.toolbar}>
+          <View style={styles.searchWrapper}>
+            <Ionicons name="search-outline" size={16} color={Colors.textMuted} />
+            <TextInput
+              style={styles.searchInput}
+              value={search}
+              onChangeText={setSearch}
+              placeholder="Buscar en catálogo..."
+              placeholderTextColor={Colors.textMuted}
+            />
+          </View>
 
-        <AppText style={styles.sortLabel}>Ordenar por</AppText>
-        <View style={styles.sortRow}>
-          {(['name', 'price', 'updatedAt'] as SortKey[]).map(key => (
-            <TouchableOpacity
-              key={key}
-              style={[styles.sortButton, sortKey === key && styles.sortButtonActive]}
-              onPress={() => setSortKey(key)}
-            >
-              <AppText
-                variant="caption"
-                style={sortKey === key ? styles.sortTextActive : styles.sortText}
+          <AppText style={styles.sortLabel}>Ordenar por</AppText>
+          <View style={styles.sortRow}>
+            {(['name', 'price', 'updatedAt'] as SortKey[]).map(key => (
+              <TouchableOpacity
+                key={key}
+                style={[styles.sortButton, sortKey === key && styles.sortButtonActive]}
+                onPress={() => setSortKey(key)}
               >
-                {key === 'name' ? 'Nombre' : key === 'price' ? 'Precio' : 'Reciente'}
-              </AppText>
-            </TouchableOpacity>
-          ))}
+                <AppText
+                  variant="caption"
+                  style={sortKey === key ? styles.sortTextActive : styles.sortText}
+                >
+                  {key === 'name' ? 'Nombre' : key === 'price' ? 'Precio' : 'Reciente'}
+                </AppText>
+              </TouchableOpacity>
+            ))}
+          </View>
         </View>
-      </View>
 
-      <View style={styles.scorecard}>
-        <AppText style={styles.scorecardNumber}>{items.length}</AppText>
-        <AppText style={styles.scorecardLabel}>
-          {items.length === 1 ? 'Producto' : 'Productos'}
-        </AppText>
-      </View>
-
-      {loading ? (
-        <Spinner message="Cargando catálogo..." />
-      ) : filtered.length === 0 ? (
-        <View style={styles.empty}>
-          <Ionicons name="grid-outline" size={48} color={Colors.gray300} />
-          <AppText variant="body" color="secondary">
-            {search ? 'Sin resultados para tu búsqueda' : 'Tu catálogo está vacío'}
+        <View style={styles.scorecard}>
+          <AppText style={styles.scorecardNumber}>{items.length}</AppText>
+          <AppText style={styles.scorecardLabel}>
+            {items.length === 1 ? 'Producto' : 'Productos'}
           </AppText>
         </View>
-      ) : (
-        <FlatList
-          data={filtered}
-          keyExtractor={item => String(item.productId)}
-          renderItem={renderItem}
-          contentContainerStyle={styles.list}
-        />
-      )}
+
+        {!selectionMode && !loading && !staleDismissed && staleSectionItems.length > 0 && (
+          <Animated.View style={[styles.staleSection, { opacity: staleAnim }]}>
+            <View style={styles.staleSectionHeader}>
+              <Ionicons name="time-outline" size={18} color={Colors.text} />
+              <AppText variant="label" style={styles.staleSectionTitle}>
+                Precios sin actualizar hace más de {STALE_DAYS_THRESHOLD} días
+              </AppText>
+            </View>
+            <ScrollView
+              style={styles.staleListContainer}
+              contentContainerStyle={styles.staleList}
+              nestedScrollEnabled
+              showsVerticalScrollIndicator
+            >
+              {staleSectionItems.map(renderStaleRow)}
+            </ScrollView>
+          </Animated.View>
+        )}
+
+        {loading ? (
+          <Spinner message="Cargando catálogo..." />
+        ) : filtered.length === 0 ? (
+          <View style={styles.empty}>
+            <Ionicons name="grid-outline" size={48} color={Colors.gray300} />
+            <AppText variant="body" color="secondary">
+              {search ? 'Sin resultados para tu búsqueda' : 'Tu catálogo está vacío'}
+            </AppText>
+          </View>
+        ) : (
+          filtered.map(renderItem)
+        )}
+      </ScrollView>
 
       {/* Delete confirm modal */}
       <Modal visible={deleteModalVisible} transparent animationType="fade">

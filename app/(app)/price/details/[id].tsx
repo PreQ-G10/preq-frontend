@@ -2,8 +2,8 @@ import { AppText, Button, Spinner } from '@/components/atoms';
 import { PriceHistoryChart, PriceSummaryPanel } from '@/components/organisms';
 import { Routes } from '@/constants/routes';
 import { Colors } from '@/constants/theme';
-import { priceService } from '@/services/api';
-import { PriceHistoryPoint, PriceSummaryResponse } from '@/types';
+import { priceService, productService } from '@/services/api';
+import { PriceHistoryPoint, PriceSummaryResponse, Product } from '@/types';
 import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
@@ -12,17 +12,20 @@ import { styles } from './[id].styles';
 
 export default function PriceDetailsScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const [product, setProduct] = useState<Product | null>(null);
   const [summary, setSummary] = useState<PriceSummaryResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [history, setHistory] = useState<PriceHistoryPoint[]>([]);
 
   useEffect(() => {
     Promise.all([
+      productService.getById(Number(id)).catch(() => null),
       priceService.getSummary(Number(id)).catch(() => null),
       priceService.getPriceHistory(Number(id)).catch(() => []),
-    ]).then(([summary, history]) => {
-      setSummary(summary);
-      setHistory(history);
+    ]).then(([prod, sum, hist]) => {
+      setProduct(prod);
+      setSummary(sum);
+      setHistory(hist);
     }).finally(() => setLoading(false));
   }, [id]);
 
@@ -38,6 +41,26 @@ export default function PriceDetailsScreen() {
       </View>
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+
+        {product && (
+          <View style={styles.productHeader}>
+            <View style={styles.productHeaderInfo}>
+              <AppText variant="h2">{product.name}</AppText>
+              <AppText variant="body" color="secondary">{product.brand}</AppText>
+              <AppText variant="caption" color="muted">
+                {product.quantity}{product.quantityType ? ` ${product.quantityType}` : ''}
+              </AppText>
+            </View>
+            {summary && (
+              <View style={styles.reportCountCard}>
+                <Ionicons name="people-outline" size={20} color={Colors.primary} />
+                <AppText variant="h2" color="primary">{summary.totalReportCount}</AppText>
+                <AppText variant="caption" color="secondary" style={{ textAlign: 'center' }}>Reportes de usuarios</AppText>
+              </View>
+            )}
+          </View>
+        )}
+
         {summary && summary.avgPrice > 0 ? (
           <>
             <PriceSummaryPanel productId={id} summary={summary} />
@@ -58,6 +81,7 @@ export default function PriceDetailsScreen() {
             </AppText>
           </View>
         )}
+
         <Button
           label="Escanear otro producto"
           variant="secondary"

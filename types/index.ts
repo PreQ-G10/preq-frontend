@@ -65,6 +65,7 @@ export interface LocationProductPrice {
   reportedAt: string;
   score: number;
   reportScore: ReportScore;
+  businessReported: boolean;
 }
 
 export interface PriceSummaryResponse {
@@ -73,6 +74,7 @@ export interface PriceSummaryResponse {
   minPrice: number;
   weightedPrice: number;
   weightedByConfidencePrice: number;
+  totalReportCount: number;
   topLocations: TopLocationResponse[];
 }
 
