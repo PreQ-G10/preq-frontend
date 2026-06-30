@@ -2,10 +2,12 @@ import { AppText, Button, Card } from '@/components/atoms';
 import { Routes } from '@/constants/routes';
 import { Colors } from '@/constants/theme';
 import { useCart } from '@/context/cartContext';
+import { saveShoppingList } from '@/utils/shoppingLists';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import React from 'react';
+import React, { useState } from 'react';
 import {
+  Alert,
   SafeAreaView,
   ScrollView,
   TouchableOpacity,
@@ -15,6 +17,23 @@ import { styles } from './index.styles';
 
 export default function CartScreen() {
   const { items, updateQuantity, clearCart, totalItems } = useCart();
+  const [savingList, setSavingList] = useState(false);
+
+  const handleSaveShoppingList = async () => {
+    if (items.length === 0 || savingList) {
+      return;
+    }
+
+    setSavingList(true);
+    try {
+      await saveShoppingList(items);
+      router.push(Routes.cartLists as never);
+    } catch {
+      Alert.alert('No se pudo guardar', 'Intentá nuevamente en unos segundos.');
+    } finally {
+      setSavingList(false);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -23,12 +42,13 @@ export default function CartScreen() {
           <Ionicons name="arrow-back" size={22} color={Colors.white} />
         </TouchableOpacity>
         <AppText variant="h3" color="white" style={styles.headerTitle}>Mi canasta</AppText>
-        {items.length > 0 && (
+        {items.length > 0 ? (
           <TouchableOpacity onPress={clearCart} style={styles.clearButton}>
             <Ionicons name="trash-outline" size={20} color={Colors.white} />
           </TouchableOpacity>
+        ) : (
+          <View style={{ width: 36 }} />
         )}
-        {items.length === 0 && <View style={{ width: 36 }} />}
       </View>
 
       {items.length === 0 ? (
@@ -92,12 +112,21 @@ export default function CartScreen() {
           </ScrollView>
 
           <View style={styles.footer}>
-            <Button
-              label="Comparar precios ubicacion"
-              variant="primary"
-              fullWidth
-              onPress={() => router.push(Routes.cartCompare)}
-            />
+            <View style={styles.footerActions}>
+              <Button
+                label="Guardar mi lista de compras"
+                variant="secondary"
+                fullWidth
+                loading={savingList}
+                onPress={handleSaveShoppingList}
+              />
+              <Button
+                label="Comparar precios ubicación"
+                variant="primary"
+                fullWidth
+                onPress={() => router.push(Routes.cartCompare)}
+              />
+            </View>
           </View>
         </>
       )}

@@ -8,15 +8,15 @@ import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import {
-    ActivityIndicator,
-    FlatList,
-    KeyboardAvoidingView,
-    Platform,
-    SafeAreaView,
-    ScrollView,
-    TextInput,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  FlatList,
+  KeyboardAvoidingView,
+  Platform,
+  SafeAreaView,
+  ScrollView,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { styles } from './BusinessProfileScreen.styles';
 
@@ -266,7 +266,7 @@ export default function BusinessProfileScreen() {
 
           <Button label="Guardar cambios" onPress={handleSave} loading={saving} fullWidth />
 
-          <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
+          <TouchableOpacity onPress={handleLogout} style={[styles.logoutButton,{marginBottom: Spacing.lg}]}>
             <Ionicons name="log-out-outline" size={18} color={Colors.error} />
             <AppText variant="label" color="error" style={{ marginLeft: Spacing.xs }}>Cerrar sesión</AppText>
           </TouchableOpacity>

@@ -97,4 +97,7 @@ export const styles = StyleSheet.create({
     borderTopColor: Colors.border,
     backgroundColor: Colors.white,
   },
+  footerActions: {
+    gap: Spacing.sm,
+  },
 });
