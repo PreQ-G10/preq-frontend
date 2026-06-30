@@ -14,6 +14,7 @@ export default function RootLayout() {
       <Stack.Screen name="price/heatmap/[id]" />
       <Stack.Screen name="product/details/[id]" />
       <Stack.Screen name="cart/compare" />
+      <Stack.Screen name="cart/lists" />
       <Stack.Screen name="cart/index" />
       <Stack.Screen name="catalogue/index" />
     </Stack>

@@ -13,6 +13,7 @@ export const Routes = {
   profile: '/profile' as const,
   cart: '/cart' as const,
   cartCompare: '/cart/compare' as const,
+  cartLists: '/cart/lists' as const,
   validation: '/validation' as const,
   catalogue: '/catalogue' as const,
 };

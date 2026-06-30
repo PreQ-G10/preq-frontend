@@ -7,13 +7,13 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useRef, useState } from 'react';
 import {
-    ActivityIndicator,
-    FlatList,
-    ScrollView,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
+  ActivityIndicator,
+  FlatList,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
 } from 'react-native';
 import { styles } from './BusinessRegisterForm.styles';
 
@@ -80,16 +80,25 @@ export function BusinessRegisterForm() {
     setSelectedPrediction(prediction);
     setSearchQuery(prediction.mainText);
     setSearchSuggestions([]);
+    console.log(searchQuery);
+    
     setSearching(true);
     try {
       const results = await locationService.searchNearby(prediction.latitude, prediction.longitude);
+      console.log("-----------------");
+      
       setNearbyLocations(results);
       setFormMode('results');
+      console.log(results);
+      
     } catch {
       setError('Error al buscar negocios cercanos.');
     } finally {
       setSearching(false);
     }
+
+    console.log(searching);
+    
   };
 
   const handleSelectLocation = (location: LocationSearchResult) => {

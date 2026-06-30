@@ -22,6 +22,15 @@ export default function HomeScreen() {
             {role !== 'BUSINESS' && (
             <TouchableOpacity
               style={styles.profileButton}
+              onPress={() => router.push(Routes.cartLists as never)}
+              activeOpacity={0.8}
+            >
+              <Ionicons name="list-outline" size={18} color={Colors.white} />
+            </TouchableOpacity>
+          )}
+            {role !== 'BUSINESS' && (
+            <TouchableOpacity
+              style={styles.profileButton}
               onPress={() => router.push(Routes.cart)}
               activeOpacity={0.8}
             >
