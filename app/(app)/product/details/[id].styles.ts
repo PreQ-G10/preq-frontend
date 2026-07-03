@@ -241,4 +241,21 @@ export const styles = StyleSheet.create({
   emptyPriceCaption: {
     textAlign: 'center' as const,
   },
+  disputeImageButton: {
+  position: 'absolute',
+  top: Spacing.md,
+  left: Spacing.md,
+  backgroundColor: 'rgba(0, 0, 0, 0.4)',
+  width: 40,
+  height: 40,
+  borderRadius: 20,
+  justifyContent: 'center',
+  alignItems: 'center',
+  zIndex: 10,
+  shadowColor: '#000',
+  shadowOffset: { width: 0, height: 2 },
+  shadowOpacity: 0.2,
+  shadowRadius: 4,
+  elevation: 4,
+},
 });

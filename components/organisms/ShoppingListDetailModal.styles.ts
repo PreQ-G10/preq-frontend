@@ -1,4 +1,4 @@
-import { Colors, Radius, Spacing, Typography } from '@/constants/theme';
+import { Colors, Radius, Spacing, Typography } from "@/constants/theme";
 import { StyleSheet } from 'react-native';
 
 export const styles = StyleSheet.create({
@@ -20,15 +20,19 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  headerTitle: { flex: 1, textAlign: 'center' },
+  headerCenter: { flex: 1, alignItems: 'center' },
   headerSpacer: { width: 36 },
+  savedAgo: {
+    color: 'rgba(255,255,255,0.75)',
+    fontSize: Typography.sizes.xs,
+    marginTop: 2,
+  },
   content: {
     padding: Spacing.lg,
     gap: Spacing.md,
   },
-  summary: {
-    paddingHorizontal: Spacing.lg,
-    paddingBottom: Spacing.xs,
+  address: {
+    marginBottom: Spacing.sm,
   },
   empty: {
     flex: 1,
@@ -36,61 +40,6 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: Spacing.xl,
     gap: Spacing.md,
-  },
-  emptyIcon: {
-    width: 96,
-    height: 96,
-    borderRadius: Radius.full,
-    backgroundColor: Colors.gray100,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: Spacing.sm,
-  },
-  listCard: {
-    gap: Spacing.md,
-  },
-  listActions: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    justifyContent: 'space-between',
-    gap: Spacing.sm,
-  },
-  badge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    paddingHorizontal: Spacing.sm,
-    paddingVertical: 2,
-    borderRadius: 99,
-    backgroundColor: Colors.gray100,
-    alignSelf: 'flex-start',
-  },
-  badgeCompleted: {
-    backgroundColor: Colors.success,
-  },
-  listHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: Spacing.sm,
-  },
-  locationRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.xs,
-    marginBottom: 2,
-  },
-  locationName: {
-    fontWeight: '600',
-  },
-  listMeta: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: Spacing.sm,
-  },
-  badgeNew: {
-    backgroundColor: '#dcfce7',
   },
   items: {
     gap: Spacing.sm,
@@ -115,16 +64,14 @@ export const styles = StyleSheet.create({
     backgroundColor: Colors.primary,
     borderColor: Colors.primary,
   },
-  itemName: {
-    flex: 1,
+  itemName: { flex: 1 },
+  itemNameChecked: {
+    textDecorationLine: 'line-through',
+    color: Colors.textMuted,
   },
   progressColumn: {
     alignItems: 'flex-end',
     gap: 2,
-  },
-  itemNameChecked: {
-    textDecorationLine: 'line-through',
-    color: Colors.textMuted,
   },
   itemQuantity: {
     fontSize: Typography.sizes.sm,
@@ -134,14 +81,6 @@ export const styles = StyleSheet.create({
   itemQuantityChecked: {
     color: Colors.textMuted,
   },
-  addButton: {
-    width: 32,
-    height: 32,
-    borderRadius: Radius.full,
-    backgroundColor: Colors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   subtractButton: {
     width: 32,
     height: 32,
@@ -150,20 +89,20 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  deleteButton: {
-    width: 36,
-    height: 36,
+  addButton: {
+    width: 32,
+    height: 32,
     borderRadius: Radius.full,
-    backgroundColor: '#fff5f5',
+    backgroundColor: Colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
   },
   footer: {
     padding: Spacing.lg,
     paddingBottom: Spacing.xxl,
+    gap: Spacing.sm,
     borderTopWidth: 1,
     borderTopColor: Colors.border,
     backgroundColor: Colors.white,
   },
-  
 });

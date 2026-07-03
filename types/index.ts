@@ -12,6 +12,8 @@ export type ReportScore = 'VALID' | 'PENDING_REVIEW' | 'INVALID';
 
 export type FieldContestStatus = 'ALREADY_SUBMITTED' | 'FIRST_SUBMIT';
 
+export type ImageDisputeStatus = 'FIRST_DISPUTE' | 'ALREADY_DISPUTED';
+
 export interface BarcodeDetectionResponse {
   status: BarcodeDetectionStatus;
   product?: ProductDetectionResponse;
@@ -289,4 +291,77 @@ export interface DeleteFromCatalogueRequest {
 
 export interface DeleteFromCatalogueResponse {
   deletedProductIds: number[];
+}
+
+export interface ProductImage {
+  id: number;
+  imageUrl: string;
+  disputeCount: number;
+}
+
+export interface ProductDetail {
+  id: number;
+  name: string;
+  brand: string;
+  quantity: number;
+  quantityType: string;
+  barcode?: string;
+  images: ProductImage[];
+}
+
+export interface ShoppingListItemResponse {
+  id: number;
+  productId: number;
+  name: string;
+  brand: string;
+  quantity: string;
+  quantityType: string;
+  cartQuantity: number;
+  checkedQuantity: number;
+}
+
+export interface ShoppingListResponse {
+  id: number;
+  locationId: number;
+  locationName: string;
+  locationAddress: string;
+  completed: boolean;
+  createdAt: string;
+  items: ShoppingListItemResponse[];
+}
+
+export interface ShoppingListSummaryResponse {
+  id: number;
+  locationId: number;
+  locationName: string;
+  locationAddress: string;
+  completed: boolean;
+  createdAt: string;
+  itemCount: number;
+}
+
+export interface SaveShoppingListRequest {
+  locationId: number;
+  items: { productId: number; cartQuantity: number }[];
+}
+
+export interface UpdateShoppingListRequest {
+  completed: boolean;
+  items: { itemId: number; checkedQuantity: number }[];
+}
+
+export interface DeleteShoppingListResponse {
+  id: number;
+}
+
+export interface TopProductResponse {
+  productId: number;
+  name: string;
+  totalAdded: number;
+}
+
+export interface BusinessMetricsResponse {
+  uniqueUsersLast30Days: number;
+  averagePriceLast10Lists: number | null;
+  topProducts: TopProductResponse[];
 }

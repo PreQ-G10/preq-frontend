@@ -114,13 +114,6 @@ export default function CartScreen() {
           <View style={styles.footer}>
             <View style={styles.footerActions}>
               <Button
-                label="Guardar mi lista de compras"
-                variant="secondary"
-                fullWidth
-                loading={savingList}
-                onPress={handleSaveShoppingList}
-              />
-              <Button
                 label="Comparar precios ubicación"
                 variant="primary"
                 fullWidth

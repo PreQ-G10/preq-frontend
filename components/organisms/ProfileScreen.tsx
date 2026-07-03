@@ -34,6 +34,7 @@ export default function ProfileScreen() {
   const [success, setSuccess] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const selectingRef = useRef(false);
+  const bannerTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     userService.getProfile().then((data) => {
@@ -66,6 +67,18 @@ export default function ProfileScreen() {
     return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
   }, [addressQuery]);
 
+  useEffect(() => {
+    return () => { if (bannerTimerRef.current) clearTimeout(bannerTimerRef.current); };
+  }, []);
+
+  const clearBannerAfterDelay = () => {
+    if (bannerTimerRef.current) clearTimeout(bannerTimerRef.current);
+    bannerTimerRef.current = setTimeout(() => {
+      setError(null);
+      setSuccess(false);
+    }, 3000);
+  };
+
   const handleSelectSuggestion = (prediction: MapboxPrediction) => {
     selectingRef.current = true;
     setSelectedAddress(prediction);
@@ -82,6 +95,7 @@ export default function ProfileScreen() {
   const handleSave = async () => {
     if (!name || !lastName) {
       setError('Nombre y apellido son obligatorios.');
+      clearBannerAfterDelay();
       return;
     }
     setSaving(true);
@@ -96,8 +110,10 @@ export default function ProfileScreen() {
         longitude: selectedAddress?.longitude ?? undefined,
       });
       setSuccess(true);
+      clearBannerAfterDelay();
     } catch (e: any) {
       setError(e.message ?? 'Error al guardar los cambios.');
+      clearBannerAfterDelay();
     } finally {
       setSaving(false);
     }
@@ -139,12 +155,24 @@ export default function ProfileScreen() {
 
           <View style={styles.form}>
             <AppText variant="label" color="secondary" style={styles.fieldLabel}>Nombre *</AppText>
-            <TextInput style={styles.input} placeholder="Nombre" placeholderTextColor={Colors.textMuted}
-              value={name} onChangeText={setName} editable={!saving} />
+            <TextInput
+              style={styles.input}
+              placeholder="Nombre"
+              placeholderTextColor={Colors.textMuted}
+              value={name}
+              onChangeText={setName}
+              editable={!saving}
+            />
 
             <AppText variant="label" color="secondary" style={styles.fieldLabel}>Apellido *</AppText>
-            <TextInput style={styles.input} placeholder="Apellido" placeholderTextColor={Colors.textMuted}
-              value={lastName} onChangeText={setLastName} editable={!saving} />
+            <TextInput
+              style={styles.input}
+              placeholder="Apellido"
+              placeholderTextColor={Colors.textMuted}
+              value={lastName}
+              onChangeText={setLastName}
+              editable={!saving}
+            />
 
             <AppText variant="label" color="secondary" style={styles.fieldLabel}>Dirección</AppText>
             <View style={styles.addressRow}>
@@ -186,14 +214,26 @@ export default function ProfileScreen() {
             )}
           </View>
 
-          {error && <AppText variant="bodySmall" color="error" style={{ marginBottom: Spacing.sm }}>{error}</AppText>}
-          {success && <AppText variant="bodySmall" color="success" style={{ marginBottom: Spacing.sm }}>Cambios guardados correctamente.</AppText>}
+          {error && (
+            <View style={styles.errorBanner}>
+              <Ionicons name="alert-circle-outline" size={18} color={Colors.white} />
+              <AppText variant="bodySmall" style={styles.bannerText}>{error}</AppText>
+            </View>
+          )}
+          {success && (
+            <View style={styles.successBanner}>
+              <Ionicons name="checkmark-circle" size={18} color={Colors.white} />
+              <AppText variant="bodySmall" style={styles.bannerText}>Cambios guardados correctamente.</AppText>
+            </View>
+          )}
 
           <Button label="Guardar cambios" onPress={handleSave} loading={saving} fullWidth />
 
           <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
             <Ionicons name="log-out-outline" size={18} color={Colors.error} />
-            <AppText variant="label" color="error" style={{ marginBottom: Spacing.md, marginLeft: Spacing.xs }}>Cerrar sesión</AppText>
+            <AppText variant="label" color="error" style={{ marginBottom: Spacing.md, marginLeft: Spacing.xs }}>
+              Cerrar sesión
+            </AppText>
           </TouchableOpacity>
         </ScrollView>
       </SafeAreaView>

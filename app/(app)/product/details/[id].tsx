@@ -1,11 +1,12 @@
 import { AppText, Button, Card, Spinner } from '@/components/atoms';
+import { DisputeImageModal } from '@/components/organisms';
 import { ContestProductModal } from '@/components/organisms/ContestProductModal';
 import { ProductCameraModal } from '@/components/organisms/ProductCameraModal';
 import { Routes } from '@/constants/routes';
 import { Colors } from '@/constants/theme';
 import { useCart } from '@/context/cartContext';
 import { priceService, productService } from '@/services/api';
-import { PriceSummaryResponse, Product } from '@/types';
+import { PriceSummaryResponse, Product, ProductDetail } from '@/types';
 import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
@@ -13,7 +14,6 @@ import {
   Alert,
   Dimensions,
   Image,
-  Platform,
   SafeAreaView,
   ScrollView,
   TouchableOpacity,
@@ -30,19 +30,25 @@ function formatPrice(value: number) {
 export default function ProductDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { addToCart, items, updateQuantity } = useCart();
-  const [product, setProduct] = useState<Product | null>(null);
+  const [product, setProduct] = useState<ProductDetail | null>(null);
   const [summary, setSummary] = useState<PriceSummaryResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeImage, setActiveImage] = useState(0);
   const [contestModalVisible, setContestModalVisible] = useState(false);
   const [cameraVisible, setCameraVisible] = useState(false);
+  const [disputeModalVisible, setDisputeModalVisible] = useState(false);
 
   const inCart = items.some((i) => i.product.id === Number(id));
   const cartQuantity = items.find((i) => i.product.id === Number(id))?.quantity ?? 0;
 
+  const visibleImages = (product?.images ?? []).filter((img) => img.disputeCount < 3);
+  const hasImages = visibleImages.length > 0;
+
+  const reloadProduct = () => productService.getDetailById(Number(id)).then(setProduct);
+
   useEffect(() => {
     Promise.all([
-      productService.getById(Number(id)),
+      productService.getDetailById(Number(id)),
       priceService.getSummary(Number(id)).catch(() => null),
     ])
       .then(([prod, sum]) => {
@@ -62,18 +68,16 @@ export default function ProductDetailScreen() {
     </SafeAreaView>
   );
 
-  const hasImages = product.images && product.images.length > 0;
-
   return (
     <SafeAreaView style={styles.container}>
 
       {/* ── Top navigation bar ── */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.headerButton}>
+        <TouchableOpacity testID="back-button" onPress={() => router.back()} style={styles.headerButton}>
           <Ionicons name="arrow-back" size={22} color={Colors.white} />
         </TouchableOpacity>
         <AppText variant="h3" color="white" style={styles.headerTitle}>Producto</AppText>
-        <TouchableOpacity onPress={() => router.push(Routes.cart)} style={styles.headerButton}>
+        <TouchableOpacity testID="cart-button" onPress={() => router.push(Routes.cart)} style={styles.headerButton}>
           <Ionicons name="cart-outline" size={22} color={Colors.white} />
           {inCart && <View style={styles.cartDot} />}
         </TouchableOpacity>
@@ -89,28 +93,30 @@ export default function ProductDetailScreen() {
               pagingEnabled
               showsHorizontalScrollIndicator={false}
               onMomentumScrollEnd={(e) => {
-                setActiveImage(
-                  Math.round(e.nativeEvent.contentOffset.x / width)
-                );
+                setActiveImage(Math.round(e.nativeEvent.contentOffset.x / width));
               }}
             >
-              {product.images.map((uri, index) => (
+              {visibleImages.map((image) => (
                 <Image
-                  key={index}
-                  source={{ uri }}
+                  key={image.id}
+                  source={{ uri: image.imageUrl }}
                   style={styles.productImage}
                   resizeMode="cover"
                 />
               ))}
             </ScrollView>
 
-            <TouchableOpacity style={styles.addPhotoButton} onPress={() => setCameraVisible(true)}>
+            <TouchableOpacity testID="camera-button" style={styles.addPhotoButton} onPress={() => setCameraVisible(true)}>
               <Ionicons name="camera" size={20} color={Colors.white} />
             </TouchableOpacity>
 
-            {product.images.length > 1 && (
+            <TouchableOpacity style={styles.disputeImageButton} onPress={() => setDisputeModalVisible(true)}>
+              <Ionicons name="flag-outline" size={16} color={Colors.white} />
+            </TouchableOpacity>
+
+            {visibleImages.length > 1 && (
               <View style={styles.dots}>
-                {product.images.map((_, index) => (
+                {visibleImages.map((_, index) => (
                   <View key={index} style={[styles.dot, index === activeImage && styles.dotActive]} />
                 ))}
               </View>
@@ -119,7 +125,7 @@ export default function ProductDetailScreen() {
         ) : (
           <View style={styles.imagePlaceholder}>
             <Ionicons name="cube-outline" size={48} color={Colors.gray300} />
-            <TouchableOpacity style={styles.addPhotoPlaceholder} onPress={() => setCameraVisible(true)}>
+            <TouchableOpacity testID="camera-button" style={styles.addPhotoPlaceholder} onPress={() => setCameraVisible(true)}>
               <AppText variant="label" color="primary">Añadir foto</AppText>
             </TouchableOpacity>
           </View>
@@ -127,7 +133,6 @@ export default function ProductDetailScreen() {
 
         {/* ── Product identity ── */}
         <View style={styles.productSection}>
-          {/* Name + barcode badge */}
           <View style={styles.nameRow}>
             <AppText variant="h2" style={styles.productName}>{product.name}</AppText>
             {product.barcode && (
@@ -145,10 +150,7 @@ export default function ProductDetailScreen() {
             {product.quantity}{product.quantityType ? ` ${product.quantityType}` : ''}
           </AppText>
 
-          <TouchableOpacity
-            onPress={() => setContestModalVisible(true)}
-            style={styles.contestTrigger}
-          >
+          <TouchableOpacity onPress={() => setContestModalVisible(true)} style={styles.contestTrigger}>
             <Ionicons name="alert-circle-outline" size={15} color={Colors.primary} />
             <AppText variant="label" color="primary">¿Esta información no es correcta o falta información?</AppText>
           </TouchableOpacity>
@@ -204,7 +206,7 @@ export default function ProductDetailScreen() {
             <View style={styles.quantityControls}>
               {inCart ? (
                 <>
-                  <TouchableOpacity
+                  <TouchableOpacity testID="qty-decrement"
                     style={[styles.qtyButton, cartQuantity === 1 && styles.qtyButtonDanger]}
                     onPress={() => updateQuantity(product.id, cartQuantity - 1)}
                     activeOpacity={0.7}
@@ -217,6 +219,7 @@ export default function ProductDetailScreen() {
                   </TouchableOpacity>
                   <AppText variant="label" style={styles.qtyValue}>{cartQuantity}</AppText>
                   <TouchableOpacity
+                    testID="qty-increment"
                     style={styles.qtyButton}
                     onPress={() => updateQuantity(product.id, cartQuantity + 1)}
                     activeOpacity={0.7}
@@ -227,7 +230,7 @@ export default function ProductDetailScreen() {
               ) : (
                 <TouchableOpacity
                   style={styles.addButton}
-                  onPress={() => addToCart(product)}
+                  onPress={() => addToCart(product as unknown as Product)}
                   activeOpacity={0.8}
                 >
                   <Ionicons name="add" size={18} color={Colors.white} />
@@ -259,9 +262,9 @@ export default function ProductDetailScreen() {
       {/* ── Modals ── */}
       <ContestProductModal
         visible={contestModalVisible}
-        product={product}
+        product={product as unknown as Product}
         onClose={() => setContestModalVisible(false)}
-        onSuccess={() => productService.getById(Number(id)).then(setProduct)}
+        onSuccess={reloadProduct}
       />
 
       <ProductCameraModal
@@ -269,13 +272,16 @@ export default function ProductDetailScreen() {
         productId={Number(id)}
         onClose={() => setCameraVisible(false)}
         onSuccess={() => {
-          if (Platform.OS === 'android') {
-            Alert.alert('Éxito', 'Foto enviada correctamente');
-          } else {
-            Alert.alert('Éxito', 'Foto enviada correctamente');
-          }
-          productService.getById(Number(id)).then(setProduct);
+          Alert.alert('Éxito', 'Foto enviada correctamente');
+          reloadProduct();
         }}
+      />
+
+      <DisputeImageModal
+        visible={disputeModalVisible}
+        imageId={visibleImages[activeImage]?.id}
+        onClose={() => setDisputeModalVisible(false)}
+        onSuccess={reloadProduct}
       />
 
     </SafeAreaView>

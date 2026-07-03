@@ -34,7 +34,7 @@ export function Button({
     >
       {loading
         ? <ActivityIndicator testID="button-spinner" color={variant === 'primary' ? Colors.white : Colors.primary} size="small" />
-        : <Text testID="button-label">{label}</Text>
+        : <Text testID="button-label" style={[styles.label, styles[`label_${variant}`], styles[`label_${size}`]]}>{label}</Text>
       }
     </TouchableOpacity>
   );

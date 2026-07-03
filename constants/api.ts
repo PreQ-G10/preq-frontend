@@ -34,5 +34,9 @@ export const API = {
     locationProfile: `${BASE_URL}/api/locations/profile`,
     updateLocationProfile: `${BASE_URL}/api/locations/update`,
     businessCatalogue: `${BASE_URL}/api/business/catalogue`,
+    productDetailById: (id: number) => `${BASE_URL}/api/products/${id}/detail`,
+    disputeImage: (id: number) => `${BASE_URL}/api/images/${id}/dispute`,
+    shoppingLists: `${BASE_URL}/shopping-lists`,
+    shoppingListById: (id: number) => `${BASE_URL}/shopping-lists/${id}`,
   },
 };
