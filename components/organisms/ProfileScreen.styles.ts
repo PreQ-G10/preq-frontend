@@ -67,4 +67,33 @@ export const styles = StyleSheet.create({
     marginTop: Spacing.xl,
     gap: Spacing.xs,
   },
+  successBannerText: {
+    flex: 1,
+  },
+  errorBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+    backgroundColor: Colors.error,
+    borderRadius: Radius.md,
+    padding: Spacing.md,
+    marginBottom: Spacing.sm,
+  },
+  successBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+    backgroundColor: Colors.success,
+    borderRadius: Radius.md,
+    padding: Spacing.md,
+    marginBottom: Spacing.sm,
+  },
+  bannerText: {
+    color: Colors.white,
+    flex: 1,
+  },
+  errorBannerText: {
+    color: Colors.error,
+    flex: 1,
+  },
 });

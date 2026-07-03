@@ -1,13 +1,15 @@
 import { AppText, Button, Card, CustomScrollView, Spinner } from '@/components/atoms';
+import { Routes } from '@/constants/routes';
 import { Colors } from '@/constants/theme';
 import { useCart } from '@/context/cartContext';
-import { cartService } from '@/services/api';
+import { cartService, shoppingListService } from '@/services/api';
 import { CartCompareResponse, CartLocationResponse, CartProductResponse, PriceSource } from '@/types';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import {
   Animated,
+  Modal,
   SafeAreaView,
   ScrollView,
   TouchableOpacity,
@@ -80,7 +82,15 @@ function ProductRow({ product }: { product: CartProductResponse }) {
   );
 }
 
-function LocationCard({ loc, index }: { loc: CartLocationResponse; index: number }) {
+function LocationCard({
+  loc,
+  index,
+  onSave,
+}: {
+  loc: CartLocationResponse;
+  index: number;
+  onSave: (loc: CartLocationResponse) => void;
+}) {
   const [expanded, setExpanded] = useState(false);
   const animHeight = useRef(new Animated.Value(0)).current;
   const animOpacity = useRef(new Animated.Value(0)).current;
@@ -96,15 +106,8 @@ function LocationCard({ loc, index }: { loc: CartLocationResponse; index: number
     ]).start();
   };
 
-  const maxHeight = animHeight.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0, 72 * 6],
-  });
-
-  const rotate = animRotate.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['0deg', '180deg'],
-  });
+  const maxHeight = animHeight.interpolate({ inputRange: [0, 1], outputRange: [0, 72 * 6] });
+  const rotate = animRotate.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '180deg'] });
 
   return (
     <Card elevated padded>
@@ -127,6 +130,13 @@ function LocationCard({ loc, index }: { loc: CartLocationResponse; index: number
             <AppText style={styles.totalPrice}>{formatPrice(loc.totalEstimatedPrice)}</AppText>
             <AppText variant="caption" color="muted">estimado</AppText>
           </View>
+          <TouchableOpacity
+            onPress={() => onSave(loc)}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            activeOpacity={0.7}
+          >
+            <Ionicons name="bookmark-outline" size={20} color={Colors.primary} />
+          </TouchableOpacity>
           <Animated.View style={{ transform: [{ rotate }] }}>
             <Ionicons name="chevron-down" size={18} color={Colors.textMuted} />
           </Animated.View>
@@ -135,10 +145,7 @@ function LocationCard({ loc, index }: { loc: CartLocationResponse; index: number
 
       <Animated.View style={{ maxHeight, opacity: animOpacity, overflow: 'hidden' }}>
         <View style={styles.divider} />
-        <CustomScrollView
-          maxHeight={72 * 5}
-          nestedScrollEnabled={true}
-        >
+        <CustomScrollView maxHeight={72 * 5} nestedScrollEnabled={true}>
           {loc.products.map((product) => (
             <ProductRow key={product.productId} product={product} />
           ))}
@@ -153,6 +160,8 @@ export default function CartCompareScreen() {
   const [result, setResult] = useState<CartCompareResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [sortMode, setSortMode] = useState<SortMode>('price');
+  const [savingLoc, setSavingLoc] = useState<CartLocationResponse | null>(null);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     cartService.compare({
@@ -162,11 +171,51 @@ export default function CartCompareScreen() {
       .finally(() => setLoading(false));
   }, []);
 
+  const handleSave = async () => {
+    if (!savingLoc) return;
+    setSaving(true);
+    try {
+      await shoppingListService.save({
+        locationId: savingLoc.locationId,
+        items: items.map((i) => ({ productId: i.product.id, cartQuantity: i.quantity })),
+      });
+      setSavingLoc(null);
+      router.push(Routes.cartLists as never);
+    } catch {
+      // keep modal open, could show an error banner here
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const sorted = result ? sortLocations(result.locations, sortMode) : [];
   const hasDistance = sorted.some((l) => l.distanceMeters != null);
 
   return (
     <SafeAreaView style={styles.container}>
+      <Modal visible={!!savingLoc} transparent animationType="fade">
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalSheet}>
+            <AppText variant="h3" style={styles.modalTitle}>¿Guardar lista?</AppText>
+            <AppText variant="body" color="secondary" style={styles.modalBody}>
+              ¿Guardar lista para {savingLoc?.name}? Guardá la lista si estás pensando en ir de compras pronto.
+            </AppText>
+            <View style={styles.modalActions}>
+              <Button
+                label="Cancelar"
+                variant="ghost"
+                onPress={() => setSavingLoc(null)}
+              />
+              <Button
+                label="Guardar"
+                variant="primary"
+                loading={saving}
+                onPress={handleSave}
+              />
+            </View>
+          </View>
+        </View>
+      </Modal>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.headerButton}>
           <Ionicons name="arrow-back" size={22} color={Colors.white} />
@@ -221,7 +270,7 @@ export default function CartCompareScreen() {
           )}
 
           {sorted.map((loc, index) => (
-            <LocationCard key={loc.locationId} loc={loc} index={index} />
+            <LocationCard key={loc.locationId} loc={loc} index={index} onSave={setSavingLoc} />
           ))}
 
           <AppText variant="caption" color="muted" style={styles.disclaimer}>

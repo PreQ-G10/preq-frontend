@@ -3,6 +3,7 @@ import {
   AddToCatalogueRequest,
   AuthResponse,
   BarcodeDetectionResponse,
+  BusinessMetricsResponse,
   BusinessProfileResponse,
   BusinessRegisterRequest,
   BusinessRegisterResponse,
@@ -14,9 +15,11 @@ import {
   CreateProductRequest,
   DeleteFromCatalogueRequest,
   DeleteFromCatalogueResponse,
+  DeleteShoppingListResponse,
   DisputePriceRequest,
   FieldContestStatus,
   HeatmapPointResponse,
+  ImageDisputeStatus,
   Location,
   LocationDetectionResponse,
   LocationProductPrice,
@@ -27,11 +30,16 @@ import {
   PriceHistoryPoint,
   PriceSummaryResponse,
   Product,
+  ProductDetail,
   ProductDetectionResponse,
   ProductSearchWithPrice,
   RegisterRequest,
+  SaveShoppingListRequest,
+  ShoppingListResponse,
+  ShoppingListSummaryResponse,
   UpdateBusinessProfileRequest,
   UpdateCataloguePriceRequest,
+  UpdateShoppingListRequest,
   UpdateUserRequest,
   UserProfile
 } from '@/types';
@@ -106,6 +114,11 @@ export const productService = {
     return handleResponse(res);
   },
 
+  async getDetailById(id: number): Promise<ProductDetail> {
+    const res = await fetchAuthenticated(API.endpoints.productDetailById(id));
+    return handleResponse(res);
+  },
+
   async detectByBarcode(barcode: string): Promise<BarcodeDetectionResponse> {
     const res = await fetchAuthenticated(API.endpoints.detectBarcode(barcode), { method: 'GET' });
     return handleResponse(res);
@@ -175,6 +188,16 @@ export const productService = {
       body: JSON.stringify(request),
     });
     return handleResponse(res);
+  },
+};
+
+export const productImageService = {
+  async disputeImage(imageId: number): Promise<{ status: ImageDisputeStatus }> {
+    const response = await fetchAuthenticated(`${API.endpoints.disputeImage(imageId)}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+    });
+    return handleResponse(response);
   },
 };
 
@@ -417,5 +440,47 @@ export const catalogueService = {
       body: JSON.stringify(request),
     });
     return handleResponse(response);
+  },
+};
+
+export const shoppingListService = {
+  async save(request: SaveShoppingListRequest): Promise<ShoppingListResponse> {
+    const res = await fetchAuthenticated(API.endpoints.shoppingLists, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    });
+    return handleResponse(res);
+  },
+
+  async update(id: number, request: UpdateShoppingListRequest): Promise<ShoppingListResponse> {
+    const res = await fetchAuthenticated(API.endpoints.shoppingListById(id), {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    });
+    return handleResponse(res);
+  },
+
+  async getAll(): Promise<ShoppingListSummaryResponse[]> {
+    const res = await fetchAuthenticated(API.endpoints.shoppingLists);
+    return handleResponse(res);
+  },
+
+  async getById(id: number): Promise<ShoppingListResponse> {
+    const res = await fetchAuthenticated(API.endpoints.shoppingListById(id));
+    return handleResponse(res);
+  },
+
+  async delete(id: number): Promise<DeleteShoppingListResponse> {
+    const res = await fetchAuthenticated(API.endpoints.shoppingListById(id), {
+      method: 'DELETE',
+    });
+    return handleResponse(res);
+  },
+
+  async getBusinessMetrics(): Promise<BusinessMetricsResponse> {
+    const res = await fetchAuthenticated(`${API.endpoints.shoppingLists}/business-metrics`);
+    return handleResponse(res);
   },
 };

@@ -40,6 +40,7 @@ export default function BusinessProfileScreen() {
   const [selectedAddress, setSelectedAddress] = useState<MapboxPrediction | null>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const selectingRef = useRef(false);
+  const bannerTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -71,6 +72,18 @@ export default function BusinessProfileScreen() {
     return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
   }, [addressQuery, locationAddressLocked]);
 
+  useEffect(() => {
+    return () => { if (bannerTimerRef.current) clearTimeout(bannerTimerRef.current); };
+  }, []);
+
+  const clearBannerAfterDelay = () => {
+    if (bannerTimerRef.current) clearTimeout(bannerTimerRef.current);
+    bannerTimerRef.current = setTimeout(() => {
+      setError(null);
+      setSuccess(false);
+    }, 3000);
+  };
+
   const handleSelectSuggestion = (prediction: MapboxPrediction) => {
     selectingRef.current = true;
     setSelectedAddress(prediction);
@@ -100,6 +113,7 @@ export default function BusinessProfileScreen() {
   const handleSave = async () => {
     if (!ownerName || !ownerLastName || !businessPhone) {
       setError('Por favor completá los campos obligatorios.');
+      clearBannerAfterDelay();
       return;
     }
     setSaving(true);
@@ -115,8 +129,10 @@ export default function BusinessProfileScreen() {
         locationAddress: locationAddressLocked ? undefined : locationAddress,
       });
       setSuccess(true);
+      clearBannerAfterDelay();
     } catch (e: any) {
       setError(e.message ?? 'Error al guardar los cambios.');
+      clearBannerAfterDelay();
     } finally {
       setSaving(false);
     }
@@ -261,12 +277,22 @@ export default function BusinessProfileScreen() {
               keyboardType="numeric" editable={!saving} placeholderTextColor={Colors.textMuted} />
           </View>
 
-          {error && <AppText variant="bodySmall" color="error" style={{ marginBottom: Spacing.sm }}>{error}</AppText>}
-          {success && <AppText variant="bodySmall" color="success" style={{ marginBottom: Spacing.sm }}>Cambios guardados correctamente.</AppText>}
+          {error && (
+            <View style={styles.errorBanner}>
+              <Ionicons name="alert-circle-outline" size={18} color={Colors.white} />
+              <AppText variant="bodySmall" style={styles.bannerText}>{error}</AppText>
+            </View>
+          )}
+          {success && (
+            <View style={styles.successBanner}>
+              <Ionicons name="checkmark-circle" size={18} color={Colors.white} />
+              <AppText variant="bodySmall" style={styles.bannerText}>Cambios guardados correctamente.</AppText>
+            </View>
+          )}
 
           <Button label="Guardar cambios" onPress={handleSave} loading={saving} fullWidth />
 
-          <TouchableOpacity onPress={handleLogout} style={[styles.logoutButton,{marginBottom: Spacing.lg}]}>
+          <TouchableOpacity onPress={handleLogout} style={[styles.logoutButton, { marginBottom: Spacing.lg }]}>
             <Ionicons name="log-out-outline" size={18} color={Colors.error} />
             <AppText variant="label" color="error" style={{ marginLeft: Spacing.xs }}>Cerrar sesión</AppText>
           </TouchableOpacity>

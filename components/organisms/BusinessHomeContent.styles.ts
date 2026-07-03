@@ -144,4 +144,58 @@ export const styles = StyleSheet.create({
     padding: Spacing.md,
     marginBottom: Spacing.lg,
   },
+  metricsSection: {
+    gap: Spacing.md,
+  },
+  metricsRow: {
+    flexDirection: 'row',
+    gap: Spacing.md,
+  },
+  metricCard: {
+    flex: 1,
+    backgroundColor: Colors.surface,
+    borderRadius: Radius.md,
+    padding: Spacing.md,
+    alignItems: 'center',
+    gap: Spacing.xs,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  metricIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: Radius.full,
+    backgroundColor: '#fff0f5',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: Spacing.xs,
+  },
+  metricValue: {
+    textAlign: 'center',
+  },
+  metricLabel: {
+    textAlign: 'center',
+  },
+  topProductsTitle: {
+    marginBottom: Spacing.sm,
+  },
+  topProductsList: {
+    gap: Spacing.sm,
+  },
+  topProductRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.md,
+  },
+  topProductRank: {
+    width: 24,
+    height: 24,
+    borderRadius: Radius.full,
+    backgroundColor: Colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  topProductName: {
+    flex: 1,
+  },
 });
